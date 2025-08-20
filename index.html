@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal de Archivos HTML - GAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para el cuerpo y el contenedor principal */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Fondo gris claro */
+            display: flex;
+            flex-direction: column; /* Organiza los elementos en columna */
+            min-height: 100vh; /* Altura mínima de la vista */
+            min-height: 100svh; /* Usa svh para mejor ajuste en móviles, teniendo en cuenta las barras del navegador */
+            margin: 0;
+            padding: 0; /* Reinicia el padding global */
+            box-sizing: border-box; /* Incluye padding y borde en el tamaño total */
+            overflow-y: auto; /* Permite el scroll para que el footer sea visible */
+            -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+        }
+        /* Ajuste para que el contenido principal ocupe el espacio restante */
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centra horizontalmente el contenido */
+            flex-grow: 1; /* Permite que el contenedor crezca para empujar el footer hacia abajo */
+            width: 100%; /* Asegura que ocupe todo el ancho disponible */
+            padding: 0px; /* Eliminado padding del wrapper */
+            box-sizing: border-box;
+        }
+        /* Ajuste para el contenedor blanco principal del menú */
+        .menu-card {
+            background-color: white;
+            padding: 0.5rem; /* Padding uniforme reducido para la tarjeta blanca */
+            border-radius: 0.75rem; /* Rounded-xl en Tailwind */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-lg en Tailwind */
+            width: 100%; /* El card siempre ocupará el 100% de su contenedor */
+            display: flex; /* Usamos flexbox para el contenido interno de la tarjeta */
+            flex-direction: column;
+            flex-grow: 1; /* Permite que la tarjeta se estire para llenar el espacio */
+        }
+
+        /* Ajuste para el título del menú */
+        h1 {
+            margin-top: 0; /* Elimina el margen superior */
+            margin-bottom: 0; /* ¡Eliminado el margen inferior! */
+            font-size: 1.8rem; /* Tamaño de fuente para mejor legibilidad en móvil */
+            line-height: 1.2; /* Reduce el interlineado del título */
+            padding-top: 0.5rem; /* Pequeño padding interno para el título */
+            padding-bottom: 0.5rem; /* Pequeño padding interno para el título */
+        }
+        @media (min-width: 640px) { /* Para pantallas más grandes que 'sm' (small) */
+            .menu-card {
+                padding: 1rem; /* Padding restaurado y uniforme en pantallas grandes */
+            }
+            h1 {
+                margin-top: 1rem; /* Margen superior adecuado en pantallas grandes */
+                margin-bottom: 1rem; /* Margen inferior adecuado */
+                font-size: 3rem; /* Tamaño de fuente original para desktop */
+            }
+        }
+
+        /* Nueva clase para el logo que resuelve el problema */
+        .construccion-logo {
+            position: absolute;
+            right: 15px; /* Margen derecho para que no toque el borde */
+            top: 50%;
+            transform: translateY(-50%);
+            height: 75%; /* Ajusta el tamaño al 75% de la altura del botón */
+            width: auto; /* Mantiene la proporción */
+            opacity: 0.8; /* Hace el logo semitransparente para que no compita con el texto */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-blue-600 w-full flex justify-center items-center py-3 shadow-md">
+        <div class="w-28 h-28 rounded-full overflow-hidden shadow-lg">
+            <img
+                src="logogad.png"
+                alt="Logo GAD"
+                class="w-full h-full object-cover block"
+            >
+        </div>
+    </header>
+
+    <div class="main-content-wrapper px-4 sm:px-8 lg:px-12">
+        <div class="menu-card">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-center text-gray-800">
+                Menú de Herramientas GAD
+            </h1>
+
+            <div class="grid grid-cols-2 gap-3 mt-2">
+                <a href="ENLACES OSINT.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl">
+                    <span class="text-center">ENLACES POR PAISES</span>
+                </a>
+                <a href="index PERMISOS DE CONDUCIR.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl">
+                    <span class="text-center">PERMISOS DE CONDUCIR</span>
+                </a>
+                <a href="index NÚMEROS DE SERIE.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl">
+                    <span class="text-center">NÚMEROS DE SERIE</span>
+                </a>
+                <a href="index VEHÍCULOS.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl">
+                    <span class="text-center">VEHÍCULOS</span>
+                </a>
+                <a href="archivo5.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                    <span class="text-center">EN CONSTRUCCIÓN</span>
+                    <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
+                </a>
+                <a href="archivo6.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                    <span class="text-center">EN CONSTRUCCIÓN</span>
+                    <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
+                </a>
+                <a href="archivo7.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                    <span class="text-center">EN CONSTRUCCIÓN</span>
+                    <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
+                </a>
+                <a href="archivo8.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                    <span class="text-center">EN CONSTRUCCIÓN</span>
+                    <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
+                </a>
+            </div>
+
+            <div class="mt-4 text-center">
+                <span id="contadorVisitas" class="text-lg font-bold text-gray-700">Cargando contador...</span>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="w-full mt-2 text-center py-3 bg-gray-200 shadow-inner text-sm sm:text-base">
+        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-1">
+        <p class="font-bold text-gray-700 leading-tight">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+        <p class="font-bold text-gray-700 leading-tight">POLICÍA LOCAL DE ALICANTE</p>
+        <p class="text-gray-600 leading-tight">&copy; GAD - Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
+            authDomain: "gad-alicante-f0d56.firebaseapp.com",
+            databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "gad-alicante-f0d56",
+            storageBucket: "gad-alicante-f0d56.firebasestorage.app",
+            messagingSenderId: "453863147861",
+            appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Función para registrar la visita y actualizar el contador
+        async function registrarVisita() {
+            try {
+                // Obtener la IP del usuario de una API externa
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const userIp = data.ip;
+
+                // Definir los nombres para las IPs conocidas
+                const knownIps = {
+                    '79.116.122.51': 'RAFA-MOVIL',
+                    '79.117.22.177': 'RAFA-CASA'
+                };
+
+                // Determinar el nombre a usar para el documento
+                // Si la IP es conocida, usa el nombre; de lo contrario, usa la IP
+                const docName = knownIps[userIp] || userIp;
+
+                // Crear una referencia al documento con el nombre o la IP
+                const docRef = db.collection('visits').doc(docName);
+
+                // Incrementar el contador de visitas y actualizar la fecha de la última visita
+                await docRef.set({
+                    count: firebase.firestore.FieldValue.increment(1),
+                    lastVisit: firebase.firestore.FieldValue.serverTimestamp(),
+                    originalIp: userIp 
+                }, { merge: true });
+
+                // Obtener el número total de visitas (sumando los contadores) y el número de IPs únicas
+                const snapshot = await db.collection('visits').get();
+                let totalVisitas = 0;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.count) {
+                        totalVisitas += data.count;
+                    }
+                });
+                const ipsUnicas = snapshot.size;
+
+                // Actualizar el contador en la página
+                document.getElementById('contadorVisitas').innerText = `Visitas totales: ${totalVisitas} | Visitas únicas: ${ipsUnicas}`;
+
+            } catch (error) {
+                console.error("Error al registrar la visita o al obtener el contador:", error);
+                document.getElementById('contadorVisitas').innerText = "Contador no disponible";
+            }
+        }
+
+        // Ejecutar la función cuando la página se carga
+        window.addEventListener('load', registrarVisita);
+    </script>
+</body>
+</html>

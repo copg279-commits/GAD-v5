@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permiso Internacional de Conducir (PIC)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flag-button-spain {
+            background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+
+<header class="bg-blue-600 w-full flex justify-center items-center py-2">
+    <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
+        <img
+            src="logogad.png"
+            alt="Logo GAD"
+            class="w-full h-full object-cover block"
+        >
+    </div>
+</header>
+
+<h1 class="text-black text-center mt-6 text-xl font-bold px-4">
+    Permiso Internacional de Conducir (PIC)
+</h1>
+
+<p class="text-center mt-2 px-4">
+    Selecciona un país para verificar si precisa o no Permiso Internacional de Conducir y si tiene convenio de canje con España.
+</p>
+
+<select id="paises" onchange="mostrarInfoPais()"
+    class="block mx-auto mt-4 p-2 text-base w-11/12 max-w-md border border-gray-300 rounded-lg">
+    <option value="">-- Seleccionar país --</option>
+    <option value="Albania">Albania</option>
+    <option value="Argelia">Argelia</option>
+    <option value="Argentina">Argentina</option>
+    <option value="Australia">Australia</option>
+    <option value="Austria">Austria</option>
+    <option value="Bangladesh">Bangladesh</option>
+    <option value="Barbados">Barbados</option>
+    <option value="Bélgica">Bélgica</option>
+    <option value="Benin">Benin</option>
+    <option value="Bielorrusia">Bielorrusia</option>
+    <option value="Bolivia">Bolivia</option>
+    <option value="Bosnia y Herzegovina">Bosnia y Herzegovina</option>
+    <option value="Botswana">Botswana</option>
+    <option value="Brasil">Brasil</option>
+    <option value="Brunei">Brunei</option>
+    <option value="Bulgaria">Bulgaria</option>
+    <option value="Burkina Faso">Burkina Faso</option>
+    <option value="Camboya">Camboya</option>
+    <option value="Canadá">Canadá</option>
+    <option value="Chile">Chile</option>
+    <option value="Chipre">Chipre</option>
+    <option value="Colombia">Colombia</option>
+    <option value="Congo">Congo</option>
+    <option value="Corea del Sur">Corea del Sur</option>
+    <option value="Costa de Marfil">Costa de Marfil</option>
+    <option value="Costa Rica">Costa Rica</option>
+    <option value="Croacia">Croacia</option>
+    <option value="Cuba">Cuba</option>
+    <option value="Dinamarca">Dinamarca</option>
+    <option value="Ecuador">Ecuador</option>
+    <option value="Egipto">Egipto</option>
+    <option value="El Salvador">El Salvador</option>
+    <option value="Emiratos Árabes">Emiratos Árabes</option>
+    <option value="Eslovaquia">Eslovaquia</option>
+    <option value="Eslovenia">Eslovenia</option>
+    <option value="España">España</option>
+    <option value="Estados Unidos">Estados Unidos</option>
+    <option value="Filipinas">Filipinas</option>
+    <option value="Finlandia">Finlandia</option>
+    <option value="Fiyi">Fiyi</option>
+    <option value="Francia">Francia</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Ghana">Ghana</option>
+    <option value="Grecia">Grecia</option>
+    <option value="Guatemala">Guatemala</option>
+    <option value="Guinea Ecuatorial">Guinea Ecuatorial</option>
+    <option value="Honduras">Honduras</option>
+    <option value="Hungría">Hungría</option>
+    <option value="India">India</option>
+    <option value="Irlanda">Irlanda</option>
+    <option value="Islandia">Islandia</option>
+    <option value="Israel">Israel</option>
+    <option value="Italia">Italia</option>
+    <option value="Jamaica">Jamaica</option>
+    <option value="Japón">Japón</option>
+    <option value="Jordania">Jordania</option>
+    <option value="Kirguistán">Kirguistán</option>
+    <option value="Laos">Laos</option>
+    <option value="Líbano">Líbano</option>
+    <option value="Lesoto">Lesoto</option>
+    <option value="Liechtenstein">Liechtenstein</option>
+    <option value="Lituania">Lituania</option>
+    <option value="Luxemburgo">Luxemburgo</option>
+    <option value="Macedonia del Norte">Macedonia del Norte</option>
+    <option value="Madagascar">Madagascar</option>
+    <option value="Malawi">Malawi</option>
+    <option value="Malasia">Malasia</option>
+    <option value="Mali">Mali</option>
+    <option value="Malta">Malta</option>
+    <option value="Marruecos">Marruecos</option>
+    <option value="México">México</option>
+    <option value="Moldavia">República de Moldova</option>
+    <option value="Mónaco">Mónaco</option>
+    <option value="Montenegro">Montenegro</option>
+    <option value="Namibia">Namibia</option>
+    <option value="Nicaragua">Nicaragua</option>
+    <option value="Níger">Níger</option>
+    <option value="Nigeria">Nigeria</option>
+    <option value="Noruega">Noruega</option>
+    <option value="Nueva Zelanda">Nueva Zelanda</option>
+    <option value="Países Bajos">Países Bajos</option>
+    <option value="Panamá">Panamá</option>
+    <option value="Paraguay">Paraguay</option>
+    <option value="Papúa Nueva Guinea">Papúa Nueva Guinea</option>
+    <option value="Perú">Perú</option>
+    <option value="Polonia">Polonia</option>
+    <option value="Portugal">Portugal</option>
+    <option value="Puerto Rico">Puerto Rico</option>
+    <option value="Reino Unido e Irlanda del Norte">Reino Unido e Irlanda del Norte</option>
+    <option value="República Árabe Siria">República Árabe Siria</option>
+    <option value="República Centroafricana">República Centroafricana</option>
+    <option value="República Checa">República Checa</option>
+    <option value="República Democrática del Congo">República Democrática del Congo</option>
+    <option value="República Dominicana">República Dominicana</option>
+    <option value="Rumania">Rumania</option>
+    <option value="Rusia">Rusia</option>
+    <option value="Ruanda">Ruanda</option>
+    <option value="San Marino">San Marino</option>
+    <option value="Santa Sede">Santa Sede</option>
+    <option value="Santo Tomé y Príncipe">Santo Tomé y Príncipe</option>
+    <option value="Senegal">Senegal</option>
+    <option value="Serbia">Serbia</option>
+    <option value="Sierra Leona">Sierra Leona</option>
+    <option value="Singapur">Singapur</option>
+    <option value="Sri Lanka">Sri Lanka</option>
+    <option value="Sudáfrica">Sudáfrica</option>
+    <option value="Suecia">Suecia</option>
+    <option value="Suiza">Suiza</option>
+    <option value="Tailandia">Tailandia</option>
+    <option value="Togo">Togo</option>
+    <option value="Trinidad y Tobago">Trinidad y Tobago</option>
+    <option value="Túnez">Túnez</option>
+    <option value="Turquía">Turquía</option>
+    <option value="Ucrania">Ucrania</option>
+    <option value="Uganda">Uganda</option>
+    <option value="Uruguay">Uruguay</option>
+    <option value="Venezuela">Venezuela</option>
+    <option value="Vietnam">Vietnam</option>
+    <option value="Zimbabue">Zimbabue</option>
+    <option value="Sin Convenio">País sin convenio (ejemplo)</option>
+</select>
+
+<div id="resultado" class="w-11/12 max-w-md mx-auto mt-6"></div>
+
+<div class="mt-8 flex justify-center">
+    <button onclick="window.location.href='index.html'"
+            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
+        MENÚ PRINCIPAL
+    </button>
+</div>
+
+<footer class="mt-auto text-center py-6 bg-gray-200">
+    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+    <p>GAD - Todos los derechos reservados</p>
+</footer>
+
+<script>
+    const conveniosCanje = {
+        "Andorra": { tieneConvenio: true, fecha: "03/02/2000" },
+        "Argelia": { tieneConvenio: true, fecha: "06/10/2000" },
+        "Argentina": { tieneConvenio: true, fecha: "31/07/2002" },
+        "Bolivia": { tieneConvenio: true, fecha: "23/11/2007" },
+        "Brasil": { tieneConvenio: true, fecha: "07/04/2009" },
+        "Chile": { tieneConvenio: true, fecha: "10/06/2005" },
+        "Colombia": { tieneConvenio: true, fecha: "31/07/2003" },
+        "Corea del Sur": { tieneConvenio: true, fecha: "14/01/2000" },
+        "Costa Rica": { tieneConvenio: true, fecha: "10/08/2020" },
+        "Ecuador": { tieneConvenio: true, fecha: "25/09/2003" },
+        "El Salvador": { tieneConvenio: true, fecha: "24/06/2009" },
+        "Filipinas": { tieneConvenio: true, fecha: "21/09/2008" },
+        "Georgia": { tieneConvenio: true, fecha: "29/09/2024" },
+        "Guatemala": { tieneConvenio: true, fecha: "21/09/2008" },
+        "Honduras": { tieneConvenio: true, fecha: "26/11/2024" },
+        "Japón": { tieneConvenio: true, fecha: "21/01/2000" },
+        "Macedonia del Norte": { tieneConvenio: true, fecha: "27/12/2011" },
+        "Marruecos": { tieneConvenio: true, fecha: "08/06/2004" },
+        "Mónaco": { tieneConvenio: true, fecha: "13/11/2013" },
+        "Moldavia": { tieneConvenio: true, fecha: "29/09/2024" },
+        "Nicaragua": { tieneConvenio: true, fecha: "04/06/2013" },
+        "Nueva Zelanda": { tieneConvenio: true, fecha: "02/06/2023" },
+        "Panamá": { tieneConvenio: true, fecha: "11/07/2014" },
+        "Paraguay": { tieneConvenio: true, fecha: "28/10/2007" },
+        "Perú": { tieneConvenio: true, fecha: "20/12/2007" },
+        "Reino Unido e Irlanda del Norte": { tieneConvenio: true, fecha: "16/03/2023" },
+        "República Dominicana": { tieneConvenio: true, fecha: "15/09/2005" },
+        "Serbia": { tieneConvenio: true, fecha: "22/07/2024" },
+        "Suiza": { tieneConvenio: true, fecha: "11/11/1997" },
+        "Túnez": { tieneConvenio: true, fecha: "27/07/2011" },
+        "Turquía": { tieneConvenio: true, fecha: "29/04/2011" },
+        "Ucrania": { tieneConvenio: true, fecha: "10/05/2011" },
+        "Uruguay": { tieneConvenio: true, fecha: "29/07/2009" },
+        "Venezuela": { tieneConvenio: false, fecha: "", fechaSuspension: "2021" },
+        "Sin Convenio": { tieneConvenio: false, fecha: "" }
+    };
+
+    const conveniosPIC = {
+        "Albania": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Argelia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Argentina": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Australia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Austria": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Bangladesh": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Barbados": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Bélgica": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Benin": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Bielorrusia": { ginebra: false, viena: true, mensaje: "Se rige por el convenio de Viena de 1968." },
+        "Bolivia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Bosnia y Herzegovina": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Botswana": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Brasil": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Brunei": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Bulgaria": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Burkina Faso": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Camboya": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Canadá": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Chile": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Chipre": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Colombia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Congo": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Corea del Sur": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Costa de Marfil": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Costa Rica": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Croacia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Cuba": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Dinamarca": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Ecuador": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Egipto": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "El Salvador": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Emiratos Árabes": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Eslovaquia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Eslovenia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "España": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Estados Unidos": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Filipinas": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Finlandia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Fiyi": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Francia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Georgia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Ghana": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Grecia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Guatemala": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Guinea Ecuatorial": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Honduras": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Hungría": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "India": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Irlanda": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Islandia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Israel": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Italia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Jamaica": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Japón": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Jordania": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Kirguistán": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Laos": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Líbano": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Lesoto": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Liechtenstein": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Lituania": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Luxemburgo": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Macedonia del Norte": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Madagascar": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Malawi": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Malasia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Mali": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Malta": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Marruecos": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "México": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Moldavia": { ginebra: false, viena: true, mensaje: "Se rige por el convenio de Viena de 1968." },
+        "Mónaco": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Montenegro": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Namibia": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Nicaragua": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Níger": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Nigeria": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Noruega": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Nueva Zelanda": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Países Bajos": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Panamá": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Paraguay": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Papúa Nueva Guinea": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Perú": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Polonia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Portugal": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Puerto Rico": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Reino Unido e Irlanda del Norte": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "República Árabe Siria": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "República Centroafricana": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "República Checa": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "República Democrática del Congo": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "República Dominicana": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Rumania": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Rusia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Ruanda": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "San Marino": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Santa Sede": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Santo Tomé y Príncipe": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Senegal": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Serbia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Sierra Leona": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Singapur": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Sri Lanka": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Sudáfrica": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Suecia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Suiza": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Tailandia": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Togo": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Trinidad y Tobago": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Túnez": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Turquía": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Ucrania": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Uganda": { ginebra: true, viena: false, mensaje: "Se rige por el convenio de Ginebra de 1949." },
+        "Uruguay": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Venezuela": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968. Solo expiden Certificado a efectos consulares con Apostilla." },
+        "Vietnam": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Zimbabue": { ginebra: true, viena: true, mensaje: "Se rige por los convenios de Ginebra de 1949 y Viena de 1968." },
+        "Sin Convenio": { ginebra: false, viena: false, mensaje: "No se encontró información sobre el convenio." }
+    };
+
+    const excepcionNoCanjeNoPIC = ['Albania', 'Bielorrusia', 'Bosnia y Herzegovina', 'Macedonia del Norte', 'Montenegro', 'Rusia', 'Ucrania'];
+
+    function mostrarInfoPais() {
+        const pais = document.getElementById('paises').value;
+        const resultadoDiv = document.getElementById('resultado');
+
+        if (!pais) {
+            resultadoDiv.innerHTML = "";
+            return;
+        }
+
+        const infoPIC = conveniosPIC[pais];
+        const infoCanje = conveniosCanje[pais];
+        
+        let necesitaPIC = false;
+        
+        if (infoCanje && infoCanje.tieneConvenio) {
+            if (pais === 'Corea del Sur' || pais === 'Japón') {
+                necesitaPIC = true;
+            } else {
+                necesitaPIC = false;
+            }
+        } else {
+            if (excepcionNoCanjeNoPIC.includes(pais)) {
+                necesitaPIC = false;
+            } else {
+                necesitaPIC = true;
+            }
+        }
+
+        let html = '';
+
+        // Sección de información sobre el PIC
+        if (infoPIC) {
+            let mensajeConvenio = '';
+            if (infoPIC.ginebra && infoPIC.viena) {
+                mensajeConvenio = `¡Sí! ${pais} puede emitir PIC. Se rige por los convenios de Ginebra de 1949 y Viena de 1968.`;
+            } else if (infoPIC.ginebra) {
+                mensajeConvenio = `¡Sí! ${pais} puede emitir PIC. Se rige por el convenio de Ginebra de 1949.`;
+            } else if (infoPIC.viena) {
+                mensajeConvenio = `¡Sí! ${pais} puede emitir PIC. Se rige por el convenio de Viena de 1968.`;
+            } else {
+                mensajeConvenio = `No se encontró información sobre el convenio para ${pais}.`;
+            }
+
+            const picColor = necesitaPIC ? 'text-red-700' : 'text-blue-700';
+            const picTexto = necesitaPIC ? 'PRECISA PERMISO INTERNACIONAL' : 'NO PRECISA PERMISO INTERNACIONAL';
+
+            html += `
+                <h3 class="text-center text-black text-lg font-bold mb-2">¿PUEDE EMITIR PIC?</h3>
+                <div class="p-4 rounded-lg bg-green-100 border border-green-400 mb-4">
+                    <p class="text-green-700 text-center font-bold">${mensajeConvenio}</p>
+                    <p class="text-center mt-2 font-bold ${picColor}">${picTexto}</p>
+                </div>
+            `;
+        }
+
+        // Sección de información sobre el canje con España
+        html += `
+            <h3 class="text-center text-black text-lg font-bold mb-2">¿EXISTE CONVENIO DE CANJE CON ESPAÑA?</h3>
+        `;
+        if (infoCanje) {
+            if (infoCanje.tieneConvenio) {
+                const dgtUrl = "https://www.dgt.es/nuestros-servicios/permisos-de-conducir/permisos-extranjeros-y-de-fuerzas-y-cuerpos-de-seguridad/canjes-de-permisos/paises-con-convenio-de-canjes/";
+                html += `
+                    <div class="p-4 rounded-lg bg-yellow-100 border border-yellow-400">
+                        <p class="text-yellow-700 text-center font-bold">
+                            ¡Sí! ${pais} tiene convenio de canje de permiso de conducir con España.
+                        </p>
+                        <p class="text-yellow-700 text-center mt-2">
+                            Fecha de entrada en vigor: <span class="font-semibold">${infoCanje.fecha}</span>
+                        </p>
+                        <div class="mt-4 text-center">
+                            <a href="${dgtUrl}" target="_blank" rel="noopener noreferrer" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                                ¿Dudas con las equivalencias?<br>Ver Canje de Notas DGT
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                let mensajeAdicional = '';
+                if (infoCanje.fechaSuspension) {
+                    mensajeAdicional = `El canje fue suspendido en ${infoCanje.fechaSuspension}.`;
+                }
+                html += `
+                    <div class="p-4 rounded-lg bg-red-100 border border-red-400">
+                        <p class="text-red-700 text-center font-bold">
+                            No, ${pais} no tiene un convenio de canje con España.
+                        </p>
+                        <p class="text-red-700 text-center mt-2">
+                            ${mensajeAdicional} Deberá obtener un nuevo permiso de conducir español.
+                        </p>
+                    </div>
+                `;
+            }
+        } else {
+            html += `
+                <div class="p-4 rounded-lg bg-red-100 border border-red-400">
+                    <p class="text-red-700 text-center font-bold">
+                        No se encontró información sobre el convenio de canje con España para ${pais}.
+                    </p>
+                </div>
+            `;
+        }
+
+        resultadoDiv.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>

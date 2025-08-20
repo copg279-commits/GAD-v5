@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Enlaces por País</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .flag-button-spain {
+            background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+
+    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
+        <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
+            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+        </div>
+    </header>
+
+    <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
+        Buscador de Enlaces por País
+    </h1>
+    <div id="countrySearchContainer" class="w-11/12 max-w-md mx-auto mt-4">
+        <p class="text-center mt-2 px-4 mb-2">
+            Introduce el nombre de un país para encontrar sus enlaces.
+        </p>
+        
+        <select id="paises" onchange="buscar(this.value)"
+                class="block mx-auto mt-4 p-2 text-base w-11/12 max-w-md border border-gray-300 rounded-lg">
+            <option value="">-- Seleccionar país --</option>
+        </select>
+    </div>
+    
+    <div id="linkList" class="mt-6 p-4 bg-white shadow rounded-lg w-11/12 max-w-md mx-auto text-left" style="display:none;">
+        <h2 class="text-xl font-bold mb-2 text-center" id="resultsTitle"></h2>
+        <div id="linksContainer"></div>
+        <button 
+            onclick="volverAtras()" 
+            class="block mx-auto mt-4 w-full bg-red-500 text-white font-bold py-3 rounded-md hover:bg-red-600 transition"
+        >
+            ← Volver
+        </button>
+    </div>
+
+    <div class="mt-8 flex justify-center">
+    <button onclick="window.location.href='index.html'"
+            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
+        MENÚ PRINCIPAL
+    </button>
+</div>
+
+
+    <footer class="mt-auto text-center py-6 bg-gray-200">
+        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+        <p>GAD - Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        const paisesData = {
+"ALEMANIA": [
+{
+"nombre": "Aptdo 2.1 2.2",
+"url": "https://www.kneifel.de/TSN_Pruefziffer.php",
+"descripcion": "Calculadora para verificar el dígito de control en documentos alemanes."
+},
+{
+"nombre": "ITV GTÜ (Cruz Roja para ayuda)",
+"url": "https://www.gtue.de/Privatkunden/Amtliche_Fahrzeuguntersuchungen/Untersuchungsberichtsuche/56026.html",
+"descripcion": "Permite buscar informes de inspección de vehículos (ITV)."
+},
+{
+"nombre": "ITV (TÜV SÜD) Auto Service Portal",
+"url": "https://auto-serviceportal.tuev-sued.de/suche_anonym/suche_kennzeichen",
+"descripcion": "Verificación anónima de la inspección técnica de un vehículo (ITV) por matrícula."
+},
+{
+"nombre": "Lista de Landers",
+"url": "http://www.autokennzeichen.net/",
+"descripcion": "Listado de matrículas y códigos de las regiones alemanas (Landers)."
+}
+],
+"ARGELIA": [
+{
+"nombre": "Pasaporte biométrico argelino",
+"url": "https://passeport.interieur.gov.dz/Fr/DemandeCNIBE_Fr/Demande%20carte%20national%20d'identit%C3%A9%20biom%C3%A9trique%20%C3%A9lectronique",
+"descripcion": "Información sobre cómo solicitar o verificar el pasaporte biométrico."
+}
+],
+"ARGENTINA": [
+{
+"nombre": "DNI te dice nombre y situación regular",
+"url": "https://www.situacao-cadastral.com/",
+"descripcion": "Permite verificar la validez y los datos de un DNI."
+},
+{
+"nombre": "INFRACCIÓN ELECTORAL (Te dice si dni corresponde con persona)",
+"url": "https://infractores.padron.gob.ar/",
+"descripcion": "Verifica si un DNI corresponde a una persona inscrita en el padrón electoral."
+},
+{
+"nombre": "Mas Buscados",
+"url": "http://www.dnrec.jus.gov.ar/masbuscados",
+"descripcion": "Acceso a la lista de personas más buscadas por la justicia."
+}
+],
+"AUSTRIA": [
+{
+"nombre": "PickerlCheck | Histórico",
+"url": "https://portal.kfzgutachten.at/",
+"descripcion": "Permite consultar el historial de inspecciones de vehículos ('Pickerl')."
+},
+{
+"nombre": "Soa",
+"url": "https://www.vvo.at/vvo/vvo.nsf/sysPages/versichererauskunft.html",
+"descripcion": "Verificación del seguro obligatorio de un vehículo (SOA)."
+},
+{
+"nombre": "Verificar Pcirc Id1",
+"url": "https://zulassung.oesd.at/fahrzeugdaten-online-abfrage/",
+"descripcion": "Consulta online de datos de vehículos con el permiso de circulación."
+}
+],
+"BANGLADESH": [
+{
+"nombre": "Verificar PNC",
+"url": "https://pratiborton.com/en/brta-driving-license-check/",
+"descripcion": "Comprobación del estado de una licencia de conducir."
+}
+],
+"BELGICA": [
+{
+"nombre": "Handi2Park - Verificación TMR",
+"url": "https://handi2park.socialsecurity.be/",
+"descripcion": "Verificación de tarjetas de estacionamiento para personas con movilidad reducida (TMR)."
+}
+,
+{
+"nombre": "Radiee",
+"url": "https://myvehiclemyplate.mobilit.fgov.be/",
+"descripcion": "Consulta de datos de vehículos y matrículas."
+}
+],
+"BIELORUSIA": [
+{
+"nombre": "SOA Tambien te da marca.",
+"url": "https://osgovts.btib.org/ords/buro/f?p=500:1",
+"descripcion": "Consulta el seguro obligatorio de un vehículo y su marca."
+}
+],
+"BOLIVIA": [
+{
+"nombre": "Cedula te dice nombre y donde vota",
+"url": "https://yoparticipo.oep.org.bo/",
+"descripcion": "Verificación de datos personales y lugar de votación a partir del número de cédula."
+}
+],
+"BRASIL": [
+{
+"nombre": "Verificación de Vehículos",
+"url": "https://www.gov.br/pt-br/servicos/consultar-dados-de-veiculo-na-base-renavam",
+"descripcion": "Verifica el historial del vehículo en la base de datos nacional."
+},
+{
+"nombre": "Verificación de Licencia de Conducir",
+"url": "https://portalservicos.senatran.serpro.gov.br/#/home",
+"descripcion": "Verifica la validez y el historial de una licencia de conducir."
+},
+{
+"nombre": "Historial del Vehículo",
+"url": "https://carcheckbrasil.com.br/",
+"descripcion": "Consulta información detallada del historial de vehículos (servicio privado)."
+}
+],
+"BULGARIA": [
+{
+"nombre": "ITV funciona",
+"url": "https://rta.government.bg/services/check-inspection/index.html",
+"descripcion": "Permite verificar la validez de la ITV de un vehículo."
+},
+{
+"nombre": "SEFRÓN BULGARIA",
+"url": "https://www2.guaranteefund.org/en/information-center/services/frontier-insurance-check",
+"descripcion": "Verificación de seguros de frontera."
+},
+{
+"nombre": "SOA",
+"url": "https://www2.guaranteefund.org/en/information-center/services/motor-third-party-liability-insurance-check",
+"descripcion": "Consulta del seguro obligatorio de vehículos."
+},
+{
+"nombre": "Verificar Documentos personales",
+"url": "https://www.mvr.bg/en/administrative-services/e-services/validity-verification-of-bulgarian-personal-documents",
+"descripcion": "Verificación de la validez de documentos personales búlgaros."
+},
+{
+"nombre": "Verificar pegatina ITV",
+"url": "https://rta.government.bg/images/Image/check-inspection/index.html",
+"descripcion": "Verificación visual y por datos de la pegatina de ITV."
+}
+],
+"COLOMBIA": [
+{
+"nombre": "Antecedentes",
+"url": "https://antecedentes.policia.gov.co:7005/WebJudicial/antecedentes.xhtml",
+"descripcion": "Consulta de antecedentes judiciales."
+},
+{
+"nombre": "Cetificado PNC",
+"url": "https://web.mintransporte.gov.co/certificadoslc/",
+"descripcion": "Verificación de la licencia de conducción a través del Ministerio de Transporte."
+},
+{
+"nombre": "Permiso de conducir",
+"url": "https://www.runt.gov.co/consultaCiudadana/#/consultaPersona",
+"descripcion": "Consulta de información de licencias de conducción en el RUNT."
+},
+{
+"nombre": "Registradores nacionales - Registraduría Nacional del Estado Civil",
+"url": "https://www.registraduria.gov.co/-Registradores-nacionales,3660-.html",
+"descripcion": "Información sobre los registradores a nivel nacional."
+},
+{
+"nombre": "RUNT 2.0",
+"url": "http://www.runt.gov.co/",
+"descripcion": "Plataforma oficial para consultar información de tránsito y transporte (RUNT)."
+}
+],
+"CROACIA": [
+{
+"nombre": "PNC No traducir",
+"url": "https://mup.gov.hr/ostalo-48/kutak-za-vozace/283633",
+"descripcion": "Consulta de licencias de conducir. No traducir el nombre del enlace para su correcta identificación."
+},
+{
+"nombre": "Soa. Con placa te da Vin",
+"url": "https://huo.hr/hr/provjera-osiguranja",
+"descripcion": "Verificación de seguros de vehículos que también proporciona el número VIN."
+}
+],
+"DINAMARCA": [
+{
+"nombre": "Datos vehículo",
+"url": "https://www.nummerplade.net/",
+"descripcion": "Consulta los datos de un vehículo por su matrícula."
+},
+{
+"nombre": "Datos vehículo - Itv Mas completa (Temporales tambien)",
+"url": "https://motorregister.skat.dk/dmr-kerne/dk/skat/dmr/front/portlets/koeretoejdetaljer/visKoeretoej/VisKoeretoejController.jpf",
+"descripcion": "Portal de registro de vehículos para consultas detalladas, incluyendo ITV y matrículas temporales."
+},
+{
+"nombre": "ITV",
+"url": "http://selvbetjening.trafikstyrelsen.dk/sider/soegning.aspx",
+"descripcion": "Búsqueda de información sobre la Inspección Técnica de Vehículos."
+}
+],
+"ECUADOR": [
+{
+"nombre": "Antecedentes",
+"url": "http://www.mdi.gob.ec/gestorcertificados/antecedentes/",
+"descripcion": "Generador de certificados de antecedentes personales."
+},
+{
+"nombre": "Averiguar nº cedula con apellidos",
+"url": "http://www.ecuadorlegalonline.com/consultas/consultar-numero-cedula/",
+"descripcion": "Servicio para encontrar el número de cédula a partir del nombre y apellidos."
+},
+{
+"nombre": "Consultar puntos P.C",
+"url": "http://www.ecuadorlegalonline.com/consultas/agencia-nacional-de-transito/consultar-licencias/",
+"descripcion": "Verificación de puntos en la licencia de conducir."
+},
+{
+"nombre": "Infracción de tránsito",
+"url": "http://www.policiaecuador.gob.ec/infraccion-de-transito/",
+"descripcion": "Consulta de infracciones de tránsito."
+},
+{
+"nombre": "Licencias de conducir",
+"url": "http://www.policiaecuador.gob.ec/licencias-de-conducir/",
+"descripcion": "Consulta e información sobre licencias de conducir."
+}
+],
+"ESLOVAQUIA": [
+{
+"nombre": "ITV y te da el VIN y Marca y modelo (Mejor con VIN)",
+"url": "https://www.overeniestk.sk/overenie-km",
+"descripcion": "Verificación de la ITV y los kilómetros de un vehículo, con datos adicionales como VIN y marca."
+},
+{
+"nombre": "S.O.A",
+"url": "http://ws.skp.sk/pvia/poistovatel.xhtml",
+"descripcion": "Consulta el seguro obligatorio de vehículos (S.O.A)."
+}
+],
+"ESLOVENIA": [
+{
+"nombre": "Itv e Historial completo",
+"url": "https://avtolog.si/",
+"descripcion": "Acceso al historial completo de un vehículo, incluyendo la ITV."
+},
+{
+"nombre": "Situación administrativa completa + ITV (con permiso de circulación)",
+"url": "https://e-uprava.gov.si/javne-evidence/motorna-vozila.html",
+"descripcion": "Verifica la situación administrativa de un vehículo y la ITV con el permiso de circulación."
+},
+{
+"nombre": "SOA",
+"url": "https://raz.zav-zdruzenje.si/euinfocenter/Search.aspx",
+"descripcion": "Herramienta para la búsqueda de seguros de vehículos."
+}
+],
+"ESPAÑA": [
+{
+"nombre": "..:: APPLUS ITEUVE ::..",
+"url": "https://apps.applusiteuve.com/CVE/LanguageSelection?language=es",
+"descripcion": "Verificación del estado de una ITV con APPLUS."
+},
+{
+"nombre": "Atex",
+"url": "https://apl.p3.trafico.es/WEB_ATEX5/jsp/consultaPersonas.jsf",
+"descripcion": "Aplicación de la DGT para la consulta de datos de personas."
+},
+{
+"nombre": "Consulta al Registro de Empresas y Actividades de Transporte - Transporte Terrestre - Ministerio de Fomento",
+"url": "https://apps.fomento.gob.es/crgt/servlet/ServletController?modulo=datosconsulta&accion=inicio&lang=es&estilo=default",
+"descripcion": "Consulta de empresas de transporte terrestre."
+},
+{
+"nombre": "CONSULTA NOTAS EXÁMENES",
+"url": "https://sedeclave.dgt.gob.es/WEB_NOTP_CONSULTA/consultaNota.faces",
+"descripcion": "Verificación de las notas de exámenes de conducir de la DGT."
+},
+{
+"nombre": "CSV lector extranjería",
+"url": "https://sede.policia.gob.es/sede/pages/publico/verifica.xhtml?56152-67215-44225-1772A",
+"descripcion": "Lector para verificar el Código Seguro de Verificación (CSV) de documentos de extranjería."
+},
+{
+"nombre": "Estado PNC",
+"url": "https://sedeapl.dgt.gob.es/WEB_EST_PERSEO/",
+"descripcion": "Consulta el estado de los Puntos de la Licencia de Conducir (PNC)."
+},
+{
+"nombre": "Eucaris",
+"url": "https://eucaris.ses.mir.es/Eucaris.WebClient/Plugins/Prum/SearchOnLicense.aspx",
+"descripcion": "Acceso a la base de datos europea de matrículas de vehículos."
+},
+{
+"nombre": "FORMS FUSTER",
+"url": "https://forms.office.com/pages/responsepage.aspx?id=cgcDJOCddUGSa21QJzSYIwz7I9i4nWFDqrKUjS0m3pdUNlhIQVFHUEtTNEZUVkFJNDhQSzJHV0hGOC4u&route=shorturl",
+"descripcion": "Formulario de la Policía Local de Alicante para trámites internos."
+},
+{
+"nombre": "Marca y modelo con placa",
+"url": "https://www.carter-cash.es/piezas-auto/",
+"descripcion": "Identifica la marca y modelo de un vehículo a partir de su matrícula."
+},
+{
+"nombre": "Motor third party liability insurance check",
+"url": "https://www2.guaranteefund.org/en/information-center/services/motor-third-party-liability-insurance-check",
+"descripcion": "Verifica el seguro de responsabilidad civil de vehículos."
+},
+{
+"nombre": "Sede Electrónica",
+"url": "https://sede.policia.gob.es/sede/pages/publico/verificaCSV.xhtml",
+"descripcion": "Verificación de documentos emitidos por la Policía Nacional con Código Seguro de Verificación (CSV)."
+},
+{
+"nombre": "Sustraídos en España",
+"url": "https://desmace.com/sustraidos/",
+"descripcion": "Búsqueda de vehículos sustraídos o robados en España."
+}
+],
+"ESTONIA": [
+{
+"nombre": "ITV Y SOA (con o sin vin)",
+"url": "https://eteenindus.mnt.ee/public/soidukTaustakontroll.jsf",
+"descripcion": "Consulta el estado de la ITV y el seguro obligatorio de vehículos."
+},
+{
+"nombre": "Verificar PNC",
+"url": "https://eteenindus.mnt.ee/public/juhiloaKehtivus.xhtml",
+"descripcion": "Verificación del estado de la licencia de conducir."
+}
+],
+"FINLANDIA": [
+{
+"nombre": "Con placa te da Marca Modelo Y VIN",
+"url": "https://www.biltema.fi/auton-varaosahaku/",
+"descripcion": "Consulta la marca, modelo y VIN de un vehículo a partir de la matrícula."
+},
+{
+"nombre": "ITV Para pedir cita te da la fecha de caducidad.",
+"url": "https://www.a-katsastus.fi/",
+"descripcion": "Portal de la ITV que proporciona la fecha de caducidad de la inspección."
+},
+{
+"nombre": "Te dice la compañía del SOA",
+"url": "https://www.claimsic.fi/#!/search#phase-1",
+"descripcion": "Identifica la compañía de seguros del vehículo (SOA)."
+}
+],
+"FRANCIA": [
+{
+"nombre": "Antiguedad WW Le STNI",
+"url": "http://stni.free.fr/index2_fr.html",
+"descripcion": "Calcula la antigüedad de matrículas temporales (WW) francesas."
+},
+{
+"nombre": "Autorigin (motos tambien)",
+"url": "https://autorigin.com/",
+"descripcion": "Consulta el historial de un vehículo, incluyendo motos."
+},
+{
+"nombre": "Búsqueda por matrícula",
+"url": "https://begin.mongrossiste.fr/Vehicle/Search?cmsRequest=1&retUrl=http%3A%2F%2Fbegin.mongrossiste.fr%2F",
+"descripcion": "Buscador de piezas de vehículos por matrícula que muestra datos del coche."
+},
+{
+"nombre": "Estatus administrativo (REQUIERE Permiso circulación)",
+"url": "https://siv.interieur.gouv.fr/map-usg-ui/do/csa_retour_dem_certificat",
+"descripcion": "Consulta el estado administrativo de un vehículo con el permiso de circulación."
+},
+{
+"nombre": "EURODATACAR",
+"url": "https://www.gravage-vehicules.fr/recherche-immatriculation",
+"descripcion": "Verificación de grabaciones de matrículas en cristales."
+},
+{
+"nombre": "EURODATACAR Robo Nº cristales",
+"url": "http://www.eurodatacar.fr/index.php",
+"descripcion": "Consulta el estado de robo de un vehículo a través de la grabación de cristales."
+},
+{
+"nombre": "Gieargos nuevo",
+"url": "https://www.myargos.org/LEA/",
+"descripcion": "Portal de búsqueda de vehículos robados."
+},
+{
+"nombre": "HistoVec (Con documentación)",
+"url": "https://histovec.interieur.gouv.fr/histovec/proprietaire",
+"descripcion": "Historial oficial de vehículos (requiere la documentación del coche)."
+},
+{
+"nombre": "ID de ARGOS",
+"url": "https://www.myargos.org/ArgosId/",
+"descripcion": "Identifica un vehículo robado a través del ID de Argos."
+},
+{
+"nombre": "ITV ETIQUETA",
+"url": "https://www.utac-otc.com/v%c3%a9hicules-l%c3%a9gers/retrouver-un-contr%c3%b4le-vl-%c3%a0-partir-de-la-vignette-pare-brise",
+"descripcion": "Permite encontrar información de ITV a partir de la pegatina del parabrisas."
+},
+{
+"nombre": "ITV FRANCIA",
+"url": "https://www.utac-otc.com/vehicule_leger/Pages/Dernier-Lieu-passage.aspx",
+"descripcion": "Consulta el último lugar y fecha de la inspección técnica."
+},
+{
+"nombre": "Nueva Te da Vin",
+"url": "https://immatriculation-auto.info/",
+"descripcion": "Consulta el VIN de un vehículo a partir de su matrícula."
+},
+{
+"nombre": "PartSouq (Te da nº motor)",
+"url": "https://partsouq.com/",
+"descripcion": "Buscador de piezas que proporciona el número de motor de un vehículo."
+},
+{
+"nombre": "Piezas. Te da Marca, modelo y Vin",
+"url": "https://www.mister-auto.com/",
+"descripcion": "Identifica la marca, modelo y VIN para buscar piezas."
+},
+{
+"nombre": "Resultado Examen PNC",
+"url": "https://www.securite-routiere.gouv.fr/resultats-du-permis-de-conduire#/step-connexion",
+"descripcion": "Consulta los resultados del examen para obtener el carné de conducir."
+},
+{
+"nombre": "SIV FRANCIA",
+"url": "https://siv-auto.fr/",
+"descripcion": "Información general sobre el sistema de matriculación de vehículos (SIV)."
+},
+{
+"nombre": "SOA FVA",
+"url": "https://www.consultation-fva.fr/",
+"descripcion": "Consulta sobre el seguro obligatorio de vehículos (Fichier des Véhicules Assurés)."
+},
+{
+"nombre": "Sociedades SIRET",
+"url": "https://www.societe.com/",
+"descripcion": "Directorio de empresas francesas con información de identificación (SIRET)."
+}
+],
+"GRECIA": [
+{
+"nombre": "DC nº personal",
+"url": "http://www.my-money.gr/tools/%CE%88%CE%BB%CE%B5%CE%B3%CE%BA%CE%BF%CF%82-%CE%91%CE%A6%CE%9C.php",
+"descripcion": "Herramienta para verificar el número de identificación personal."
+},
+{
+"nombre": "SOA (Matrícula + Nº CI (casilla C.1.3-Aptdo 3)",
+"url": "https://www.hic.gr/hic/Check_ins.aspx",
+"descripcion": "Verificación del seguro de responsabilidad civil, requiere matrícula y número de identificación."
+},
+{
+"nombre": "Web Oficial. te da Marca y Soa",
+"url": "https://dilosi.services.gov.gr/templates/VEHICLE-INSURANCE/create",
+"descripcion": "Portal oficial para verificar la marca del vehículo y su seguro."
+}
+],
+"GUINEA REPUBLICA": [
+{
+"nombre": "Consultar Licencia de Conducir - SIGPC",
+"url": "https://www.sigpcgn.com/Permiss",
+"descripcion": "Consulta en línea de licencias de conducir."
+}
+],
+"HOLANDA": [
+{
+"nombre": "Comprobar número de documento (Solo Tarjeta)",
+"url": "https://documentnummercontroleren.rdw.nl/geldig",
+"descripcion": "Herramienta para verificar la validez de los números de documentos holandeses."
+},
+{
+"nombre": "Finnik (si no sale en la otra, matrícula suspendida)",
+"url": "https://www.finnik.nl/?referrer=https%3A%2F%2Fwww.google.com%2F",
+"descripcion": "Consulta de datos de vehículos; útil si la matrícula está suspendida."
+},
+{
+"nombre": "ITV APK (VER PDF)",
+"url": "https://publiek.vwe.nl//",
+"descripcion": "Verificación de la ITV (APK) y acceso a informes en PDF."
+},
+{
+"nombre": "WAM-SOA Y VERBOD-BAJA",
+"url": "https://ovi.rdw.nl/default.aspx",
+"descripcion": "Consulta el seguro obligatorio (WAM-SOA) y el estado de baja del vehículo."
+}
+],
+"HONDURAS": [
+{
+"nombre": "Servicios Policiales Honduras",
+"url": "https://transitohonduras.gob.hn/system/",
+"descripcion": "Portal de la Policía Nacional de Honduras para servicios de tránsito."
+}
+],
+"INDIA": [
+{
+"nombre": "Datos Permiso conducir (No da titular)",
+"url": "https://sarathi.nic.in:8443/nrportal/sarathi/DlDetRequest.jsp",
+"descripcion": "Consulta de datos de la licencia de conducir sin mostrar el nombre del titular."
+},
+{
+"nombre": "Datos permiso de conducir (Si da titular)",
+"url": "https://parivahan.gov.in/rcdlstatus/?pur_cd=101",
+"descripcion": "Verificación de la licencia de conducir que sí muestra el nombre del titular."
+},
+{
+"nombre": "TELANGANA - INDIA (Sin contrastar)",
+"url": "https://tgtransport.net/TGCFSTONLINE/Reports/OnlineLicenceSearch.aspx",
+"descripcion": "Búsqueda de licencias de conducir en la región de Telangana."
+},
+{
+"nombre": "verificación rápida permiso",
+"url": "https://sarathi.parivahan.gov.in/sarathiservice/stateSelection.do",
+"descripcion": "Portal de servicios de transporte para la verificación rápida de permisos."
+}
+],
+"IRLANDA": [
+{
+"nombre": "CVRT CADUCIDAD ITV Comerciales",
+"url": "https://operator.cvrt.ie/Vehicle/CRWExpiryTestReminder",
+"descripcion": "Consulta la fecha de caducidad de la ITV para vehículos comerciales (CVRT)."
+},
+{
+"nombre": "ITV",
+"url": "https://www.ncts.ie/1101/",
+"descripcion": "Verificación de la Inspección Técnica de Vehículos (NCT)."
+},
+{
+"nombre": "PNC (Ver si existe)",
+"url": "https://booking.ndls.ie/index.php",
+"descripcion": "Comprueba la existencia de una licencia de conducir."
+},
+{
+"nombre": "Te da cambios de titular o estado en los últimos 3 meses",
+"url": "https://www.motortax.ie/OMT/welcome.do",
+"descripcion": "Consulta los cambios de titularidad y estado del vehículo en los últimos 3 meses."
+},
+{
+"nombre": "Te da el VIN y Nº motor (Pinchar la i)",
+"url": "http://ardauto.ie/parts",
+"descripcion": "Proporciona el VIN y el número de motor de un vehículo."
+}
+],
+"ISLA DE MAN": [
+{
+"nombre": "Búsqueda de vehículos",
+"url": "https://services.gov.im/vehicles-driving/vehicle-search/",
+"descripcion": "Servicio de búsqueda de vehículos en la Isla de Man."
+}
+],
+"ISLANDIA": [
+{
+"nombre": "Con placa te da Datos+ITV+VIN",
+"url": "https://www.samgongustofa.is/umferd/okutaeki/okutaekjaskra/uppfletting/",
+"descripcion": "Proporciona datos completos del vehículo, incluyendo ITV y VIN, a partir de la matrícula."
+}
+],
+"ITALIA": [
+{
+"nombre": "Documentos robados o perdidos.",
+"url": "https://www.crimnet.dcpc.interno.gov.it/crimnet/ricerca-documenti-rubati-smarriti",
+"descripcion": "Base de datos para la búsqueda de documentos robados o perdidos."
+},
+{
+"nombre": "ITV",
+"url": "https://www.ilportaledellautomobilista.it/interrogazionistoricorevisioni/spa/",
+"descripcion": "Consulta del historial de revisiones y ITV de un vehículo."
+},
+{
+"nombre": "SOA",
+"url": "https://www.ilportaledellautomobilista.it/web/portale-automobilista/verifica-copertura-rc?p_p_id=CoperturaRC_WAR_ServiziAlCittadinowar100SNAPSHOTesercizio&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=_118_INSTANCE_hoIzOCy6I6vu__column-2&p_p_col_count=1&_CoperturaRC_WAR_ServiziAlCittadinowar100SNAPSHOTesercizio_action=sceltaTipologia",
+"descripcion": "Verificación de la cobertura de seguro obligatorio (SOA)."
+}
+],
+"LETONIA": [
+{
+"nombre": "SOA (permite busquedas fecha anterior)",
+"url": "https://services.ltab.lv/en/RespInsurer",
+"descripcion": "Permite verificar la póliza de seguro obligatorio en fechas anteriores."
+},
+{
+"nombre": "SOA Y BAJAS",
+"url": "https://services.ltab.lv/lv/CheckOcta",
+"descripcion": "Consulta del seguro obligatorio y estado de baja de vehículos."
+}
+],
+"LITUANIA": [
+{
+"nombre": "Historial ITV Vin+ Nº Permiso Circulación",
+"url": "https://itais.vta.lt/itais/services/search?execution=e7s1",
+"descripcion": "Consulta el historial de ITV con el VIN y el número de permiso de circulación."
+},
+{
+"nombre": "ITV Y BAJA (con VIN)",
+"url": "https://www.eregitra.lt/services/vehicle-registration/data-search",
+"descripcion": "Verificación de la ITV y el estado de baja de un vehículo con el VIN."
+},
+{
+"nombre": "Permiso conducir comprobar falsedad (Nº PNC y Nº CI)",
+"url": "https://www.eregitra.lt/viesa/iintervp/Index.php?lang=en",
+"descripcion": "Verifica la autenticidad de un permiso de conducir con su número y el de la tarjeta de identificación."
+},
+{
+"nombre": "S.O.A",
+"url": "https://www.cab.lt/web/en/insurance-check",
+"descripcion": "Verificación del seguro obligatorio de vehículos."
+}
+],
+"MALTA": [
+{
+"nombre": "ITV",
+"url": "https://secure2.gov.mt/vera/default.aspx?page=vrt&opt=vrtnextdate&serv=general",
+"descripcion": "Consulta la próxima fecha de la Inspección Técnica de Vehículos (VRT)."
+}
+],
+"MARRUECOS": [
+{
+"nombre": "CIS user policia policia2024",
+"url": "https://www.carteverte.ma/CkeckCartes",
+"descripcion": "Verificación del seguro de vehículos ('Carte Verte') con usuario y contraseña (policia, policia2024)."
+},
+{
+"nombre": "Consulta Oposición Vehículos",
+"url": "http://www.assiaqacard.ma/opppub/",
+"descripcion": "Consulta de vehículos que tienen alguna oposición o carga administrativa."
+},
+{
+"nombre": "Verificar Permiso conducir residentes",
+"url": "http://authenticite.mtpnet.gov.ma/metl-authenticite-1/consulter.html/",
+"descripcion": "Verificación de permisos de conducir de residentes."
+}
+],
+"MEXICO": [
+{
+"nombre": "Comprobar folio de pago CDMEX",
+"url": "https://data.finanzas.cdmx.gob.mx/consultas_pagos/consulta_pagos",
+"descripcion": "Consulta el estado de un folio de pago en la Ciudad de México."
+}
+],
+"MOLDAVIA": [
+{
+"nombre": "Nº certificado te da marca y placa",
+"url": "https://e-services.md/registru/?orderType=33&language=ro",
+"descripcion": "Consulta la marca y matrícula del vehículo con el número de certificado."
+},
+{
+"nombre": "Permiso conducir y otros documentos. Nº corto (9 cifras)",
+"url": "https://e-services.md/?q=ro/content/verifisa-statutul-documentului",
+"descripcion": "Verificación de permisos de conducir y otros documentos con su número corto."
+},
+{
+"nombre": "SOA verificar nº de póliza",
+"url": "https://rca.cnpf.md/",
+"descripcion": "Verificación del seguro de responsabilidad civil obligatorio por número de póliza."
+}
+],
+"MONGOLIA": [
+{
+"nombre": "PNC (Letras nº de registro en teclado Ruso)",
+"url": "https://service.police.gov.mn/pages/Driver.aspx",
+"descripcion": "Portal de la policía para verificar la licencia de conducir, las letras de registro se introducen con un teclado ruso."
+}
+],
+"NICARAGUA": [
+{
+"nombre": "PNC Policia Nacional",
+"url": "https://tramitesenlinea.policia.gob.ni/Verificacion.aspx",
+"descripcion": "Servicio de verificación de la Policía Nacional de Nicaragua."
+}
+],
+"NIGERIA": [
+{
+"nombre": "Nigeria Driver's Licence (1ª CASILLA WEB Y NÚMERO DE LA FRANJA AZUL)",
+"url": "https://nigeriadriverslicence.org/license/renewal/MHbGt-qSiK8NAnrC48hemA",
+"descripcion": "Verificación de licencias de conducir de Nigeria con el número de la franja azul."
+}
+],
+"NORUEGA": [
+{
+"nombre": "Comprobar ITV placa y vin (También te da Vin, Marca y modelo y baja)",
+"url": "https://www.vegvesen.no/Kjoretoy/Kjop+og+salg/Kj%C3%B8ret%C3%B8yopplysninger?registreringsnummer=",
+"descripcion": "Verificación de la ITV y otros datos del vehículo como el VIN, la marca, el modelo y si está de baja."
+},
+{
+"nombre": "Datos del vehículo",
+"url": "https://regnr.info/",
+"descripcion": "Consulta información detallada de un vehículo."
+},
+{
+"nombre": "Documentos ID-senter",
+"url": "https://www.nidsenter.no/",
+"descripcion": "Portal de la policía noruega para verificar documentos de identidad."
+}
+],
+"PAKISTAN": [
+{
+"nombre": "Verificación de Vehículos",
+"url": "https://vehicle-verification-pakistan-xio.softonic.com/android",
+"descripcion": "Aplicación para verificar la matrícula de vehículos."
+},
+{
+"nombre": "Verificación de Licencia de Conducir",
+"url": "https://play.google.com/store/apps/details?id=com.dlims",
+"descripcion": "Aplicación para verificar la validez de la licencia de conducir."
+}
+],
+"PARAGUAY": [
+{
+"nombre": "Portal de Trámites",
+"url": "https://www.paraguay.gov.py/oee/antsv/1395",
+"descripcion": "Portal oficial de la Agencia Nacional de Tránsito y Seguridad Vial."
+},
+{
+"nombre": "Consulta de Vehículos por Placa",
+"url": "https://play.google.com/store/apps/details?id=br.com.gleicisantana.consultaplaca&hl=es_US",
+"descripcion": "Aplicación para buscar información de un vehículo por la matrícula."
+}
+],
+"PERU": [
+{
+"nombre": "Verificación Vehicular",
+"url": "https://www.sat.gob.pe/WebSiteV9/Noticias/aid/341",
+"descripcion": "Verifica papeletas y órdenes de captura."
+},
+{
+"nombre": "Verificación de Licencia de Conducir",
+"url": "https://licencias.mtc.gob.pe/",
+"descripcion": "Consulta el puntaje, papeletas y más información de la licencia de conducir."
+},
+{
+"nombre": "Verificación de SOAT",
+"url": "https://www.pacifico.com.pe/consulta-soat",
+"descripcion": "Verifica la validez del SOAT (Seguro Obligatorio de Accidentes de Tránsito)."
+}
+],
+"POLONIA": [
+{
+"nombre": "Centralna Ewidencja Pojazdów i Kierowców (CEPiK)",
+"url": "http://www.cepik.gov.pl/",
+"descripcion": "Consulta información sobre vehículos y conductores."
+}
+],
+"PORTUGAL": [
+{
+"nombre": "Datos y SOA",
+"url": "https://www.imtonline.pt/portal/veiculos/consultas",
+"descripcion": "Consulta de datos y seguro de automóvil."
+},
+{
+"nombre": "Matriculas canceladas",
+"url": "https://www.imtonline.pt/portal/veiculos/veiculos-cancelados",
+"descripcion": "Consulta de matrículas canceladas."
+},
+{
+"nombre": "S.O.A",
+"url": "https://www.asf.com.pt/pt/servicos-online/verificacao-online-da-existencia-de-seguro",
+"descripcion": "Verificación de seguro de automóvil."
+},
+{
+"nombre": "Saber Vin con placa",
+"url": "https://www.imtonline.pt/portal/veiculos/consultas",
+"descripcion": "Consulta de VIN con la matrícula."
+}
+],
+"REINO UNIDO": [
+{
+"nombre": "Ardauto.es",
+"url": "https://ardauto.es/",
+"descripcion": "Portal de vehículos."
+},
+{
+"nombre": "Carcheck",
+"url": "https://www.gov.uk/check-mot-status",
+"descripcion": "Verificación de vehículos."
+},
+{
+"nombre": "CheckHistory.UK",
+"url": "https://www.checkhistory.uk/",
+"descripcion": "Consulta del historial de vehículos."
+},
+{
+"nombre": "MOT historial",
+"url": "https://www.gov.uk/check-mot-history",
+"descripcion": "Consulta del historial de la ITV."
+},
+{
+"nombre": "OFICIAL GB TAX Y MOT",
+"url": "https://www.gov.uk/check-vehicle-tax",
+"descripcion": "Verificación oficial del impuesto y ITV (MOT)."
+},
+{
+"nombre": "Placas de matrícula de vehículos del Reino Unido",
+"url": "https://www.gov.uk/government/organisations/driver-and-vehicle-licensing-agency",
+"descripcion": "Información sobre matrículas de vehículos."
+},
+{
+"nombre": "SOA GB Askmid",
+"url": "https://www.askmid.com/",
+"descripcion": "Verificación de seguro de automóvil (Askmid)."
+}
+],
+"REPÚBLICA CHECA": [
+{
+"nombre": "HISTORIAL ITV (con Vin)",
+"url": "https://www.cebia.cz/vin-check",
+"descripcion": "Consulta del historial de ITV con el VIN."
+},
+{
+"nombre": "SOA",
+"url": "https://www.ckp.cz/en/online-services/check-green-card",
+"descripcion": "Verificación de seguro de automóvil."
+}
+],
+"REPUBLICA DOMINICANA": [
+{
+"nombre": "Consulta de Placas (DGII)",
+"url": "https://dgii.gov.do/vehiculosMotor/consultas/Paginas/consultaPlacas.aspx",
+"descripcion": "Consulta la información de las placas de vehículos."
+},
+{
+"nombre": "Verificación de Licencia de Conducir (INTRANT)",
+"url": "https://intrant.gob.do/index.php/servicios/consulta-en-linea/item/326-consulta-en-linea-renovacion-de-licencias",
+"descripcion": "Verifica el estado de una licencia de conducir."
+}
+],
+"RUMANIA": [
+{
+"nombre": "Verificación ITP (RAR)",
+"url": "https://prog.rarom.ro/rarpol/",
+"descripcion": "Verifica la validez de la Inspección Técnica Periódica (ITP)."
+},
+{
+"nombre": "Verificación RCA (BAAR)",
+"url": "https://www.aida.info.ro/",
+"descripcion": "Verifica la póliza de seguro obligatoria (RCA)."
+}
+],
+"RUSIA": [
+{
+"nombre": "Verificación de Vehículos (Gosuslugi)",
+"url": "https://www.gosuslugi.ru/help/faq/sale_car/513141",
+"descripcion": "Consulta el historial de un vehículo en la plataforma de servicios públicos."
+},
+{
+"nombre": "Verificación de Licencia de Conducir (GIBDD)",
+"url": "http://www.gibdd.ru/check/driver/",
+"descripcion": "Verifica la validez de una licencia de conducir."
+}
+],
+"SENEGAL": [
+{
+"nombre": "Verificación de Documentos",
+"url": "https://www.servicepublic.gouv.sn/",
+"descripcion": "Portal de servicios públicos. No se encontraron herramientas de verificación directa de vehículos o licencias."
+}
+],
+"SERBIA": [
+{
+"nombre": "Verificación de Documentos",
+"url": "https://www.mup.gov.rs/wps/portal/sr/gradani",
+"descripcion": "Portal oficial del Ministerio del Interior. No se encontraron herramientas de verificación directa de vehículos o licencias."
+}
+],
+"SUECIA": [
+{
+"nombre": "Información del Vehículo",
+"url": "https://www.transportstyrelsen.se/en/road/Vehicles/Vehicle-information/",
+"descripcion": "Consulta información sobre el estado del vehículo, ITV, etc."
+},
+{
+"nombre": "Licencia de Conducir (Trafikverket)",
+"url": "https://www.trafikverket.se/en/startpage/drivinglicence/",
+"descripcion": "Información sobre permisos y trámites de conducir."
+}
+],
+"UCRANIA": [
+{
+"nombre": "Servicios de Tráfico",
+"url": "https://hsc.gov.ua/index-en/",
+"descripcion": "Página oficial del Centro de Servicios del Ministerio del Interior. No se encontraron herramientas de verificación directa de vehículos o licencias."
+}
+],
+"URUGUAY": [
+{
+"nombre": "Consulta de Patente (GUB.UY)",
+"url": "https://www.gub.uy/tramites/consulta-patente-rodados-matricula-padron-gobierno-departamental",
+"descripcion": "Consulta la deuda de patentes por matrícula y padrón."
+},
+{
+"nombre": "Consulta de Valor de Patente (SUCIVE)",
+"url": "https://www.sucive.gub.uy/consulta_patente",
+"descripcion": "Consulta el valor de la patente."
+},
+{
+"nombre": "Libreta de Conducir (UNASEV)",
+"url": "https://www.gub.uy/unidad-nacional-seguridad-vial/punc",
+"descripcion": "Información sobre el Permiso Único Nacional de Conducir."
+}
+],
+"VENEZUELA": [
+{
+"nombre": "Verificación de Vehículos e Licencia (INTT)",
+"url": "https://www.intt.gob.ve/inttweb/",
+"descripcion": "Portal para consultas públicas de trámites vehiculares."
+},
+{
+"nombre": "Verificación con Código QR",
+"url": "https://www.intt.gob.ve/inttweb/?p=7282",
+"descripcion": "Información sobre la verificación de documentos con código QR."
+}
+],
+"VIETNAM": [
+{
+"nombre": "Verificación de la licencia de conducir",
+"url": "https://gplx.gov.vn/en/",
+"descripcion": "Verifica la validez y los datos de una licencia de conducir."
+}
+]
+};
+        const paisesSelect = document.getElementById('paises');
+        const linkList = document.getElementById('linkList');
+        const resultsTitle = document.getElementById('resultsTitle');
+        const linksContainer = document.getElementById('linksContainer');
+
+        function populateSelect() {
+            paisesSelect.innerHTML = '<option value="">-- Seleccionar país --</option>';
+            const sortedCountries = Object.keys(paisesData).sort();
+            sortedCountries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                paisesSelect.appendChild(option);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateSelect();
+
+            window.buscar = function(pais) {
+                linksContainer.innerHTML = '';
+                if (!pais) {
+                    linkList.style.display = 'none';
+                    return;
+                }
+
+                linkList.style.display = 'block';
+                let results = paisesData[pais];
+                let title = `Enlaces de ${pais}`;
+
+                resultsTitle.textContent = title;
+
+                if (results && results.length > 0) {
+                    results.forEach(link => {
+                        const linkDiv = document.createElement('a');
+                        linkDiv.href = link.url;
+                        linkDiv.target = "_blank";
+                        linkDiv.rel = "noreferrer";
+                        linkDiv.classList.add('bg-white', 'p-4', 'shadow-md', 'rounded-lg', 'mb-2', 'cursor-pointer', 'hover:bg-gray-50', 'block');
+                        linkDiv.innerHTML = `<h3 class="font-bold text-blue-600">${link.nombre}</h3><p class="text-sm text-gray-600">${link.descripcion}</p>`;
+                        linksContainer.appendChild(linkDiv);
+                    });
+                } else {
+                    linksContainer.innerHTML = `<p class="text-center text-gray-500">No se encontraron enlaces para la búsqueda.</p>`;
+                }
+            };
+            
+            window.volverAtras = function() {
+                linkList.style.display = 'none';
+                paisesSelect.value = '';
+            };
+        });
+    </script>
+</body>
+</html>
