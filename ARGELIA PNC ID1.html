@@ -34,6 +34,10 @@
       max-height: 300px;
       overflow-y: auto;
     }
+    .cpi-table-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
@@ -83,8 +87,24 @@
     <button id="mostrarListadoBtn" class="w-full bg-blue-500 text-white py-2 rounded-md shadow hover:bg-blue-600 mt-2">
       Consultar Lista Completa
     </button>
-    <div id="listadoDatos" class="mt-4 hidden text-left text-sm p-4 bg-gray-100 rounded-md">
+    
+    <div id="cpiDataTable" class="mt-4 hidden">
+        <h3 class="text-lg font-semibold mb-4 text-center">Listado Completo</h3>
+        <div class="cpi-table-container">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Número de orden</th>
+                        <th scope="col" class="px-6 py-3">Fecha</th>
+                        <th scope="col" class="px-6 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody id="cpiList">
+                    </tbody>
+            </table>
+        </div>
     </div>
+    
     <div id="formularioNuevosDatos" class="mt-4 hidden">
       <div class="mb-4">
         <label for="nuevoNumero" class="block text-sm font-bold text-gray-700 mb-1">Número de Identificación:</label>
@@ -144,24 +164,21 @@
     });
 
     function cargarDatosDesdeFirebase() {
-      licenciasNuevasRef.once('value')
-        .then(snapshot => {
-          datosCompletos = [];
-          snapshot.forEach(childSnapshot => {
-            const nuevoDato = childSnapshot.val();
-            const key = childSnapshot.key;
-            datosCompletos.push({
-              numero: nuevoDato.numero,
-              fecha: nuevoDato.fecha,
-              key: key
-            });
+      licenciasNuevasRef.on('value', snapshot => {
+        datosCompletos = [];
+        snapshot.forEach(childSnapshot => {
+          const nuevoDato = childSnapshot.val();
+          const key = childSnapshot.key;
+          datosCompletos.push({
+            numero: nuevoDato.numero,
+            fecha: nuevoDato.fecha,
+            key: key
           });
-          datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
-          console.log("Datos de Firebase cargados y combinados.");
-        })
-        .catch(error => {
-          console.error("Error al cargar datos de Firebase:", error);
         });
+        datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+        console.log("Datos de Firebase cargados y combinados.");
+        renderizarTablaCpi();
+      });
     }
 
     const mostrarFormularioBtn = document.getElementById('mostrarFormularioBtn');
@@ -169,26 +186,20 @@
     const nuevoNumeroInput = document.getElementById('nuevoNumero');
     const nuevaFechaInput = document.getElementById('nuevaFecha');
     const mensajeGuardadoDiv = document.getElementById('mensajeGuardado');
-
     const mostrarListadoBtn = document.getElementById('mostrarListadoBtn');
-    const listadoDatosDiv = document.getElementById('listadoDatos');
+    const cpiDataTable = document.getElementById('cpiDataTable');
+    const cpiListDiv = document.getElementById('cpiList');
 
     mostrarFormularioBtn.addEventListener('click', () => {
         formularioNuevosDatos.classList.toggle('hidden');
+        cpiDataTable.classList.add('hidden');
         limpiarCampos();
-        if (!listadoDatosDiv.classList.contains('hidden')) {
-            listadoDatosDiv.classList.add('hidden');
-        }
     });
 
     mostrarListadoBtn.addEventListener('click', () => {
-        listadoDatosDiv.classList.toggle('hidden');
-        if (!listadoDatosDiv.classList.contains('hidden')) {
-            renderizarListado();
-            if (!formularioNuevosDatos.classList.contains('hidden')) {
-                formularioNuevosDatos.classList.add('hidden');
-            }
-        }
+        cpiDataTable.classList.toggle('hidden');
+        formularioNuevosDatos.classList.add('hidden');
+        limpiarCampos();
     });
 
     function limpiarCampos() {
@@ -223,13 +234,11 @@
         const antes = datosOrdenadosPorNumero.filter(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) <= 0).pop();
         const despues = datosOrdenadosPorNumero.find(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) > 0);
 
-        // Validar si el número es mayor al anterior pero con fecha anterior
         if (antes && fechaNueva < new Date(antes.fecha.split('/').reverse().join('-'))) {
             mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA (Número posterior con fecha anterior)</p>`;
             return;
         }
 
-        // Validar si el número es menor al siguiente pero con fecha posterior
         if (despues && fechaNueva > new Date(despues.fecha.split('/').reverse().join('-'))) {
             mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA (Número anterior con fecha posterior)</p>`;
             return;
@@ -244,9 +253,6 @@
             .then(() => {
                 mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firebase!';
                 mensajeGuardadoDiv.style.color = 'green';
-                
-                cargarDatosDesdeFirebase();
-                
                 limpiarCampos();
                 formularioNuevosDatos.classList.add('hidden');
             })
@@ -256,47 +262,62 @@
             });
     }
 
-    function renderizarListado() {
-        const datosOrdenados = [...datosCompletos].sort((a, b) => {
-            const [d1, m1, y1] = a.fecha.split('/');
-            const [d2, m2, y2] = b.fecha.split('/');
-            const fechaA = new Date(`${y1}-${m1}-${d1}`);
-            const fechaB = new Date(`${y2}-${m2}-${d2}`);
-            return fechaB - fechaA;
-        });
+    function renderizarTablaCpi() {
+      cpiListDiv.innerHTML = '';
+      
+      const datosOrdenados = [...datosCompletos].sort((a, b) => {
+          const [d1, m1, y1] = a.fecha.split('/');
+          const [d2, m2, y2] = b.fecha.split('/');
+          const fechaA = new Date(`${y1}-${m1}-${d1}`);
+          const fechaB = new Date(`${y2}-${m2}-${d2}`);
+          if (fechaA.getTime() === fechaB.getTime()) {
+              return b.numero - a.numero;
+          }
+          return fechaB - fechaA;
+      });
+      
+      datosOrdenados.forEach(dato => {
+        const fila = document.createElement('tr');
+        fila.classList.add('bg-white', 'border-b', 'hover:bg-gray-50');
 
-        let htmlListado = '<p class="font-bold mb-2">Listado de números de identificación por fecha de expedición (más reciente primero):</p><ul class="listado-container">';
-        datosOrdenados.forEach(item => {
-            const deleteButton = item.key ? 
-                `<span onclick="confirmarEliminar('${item.key}', '${item.numero}')" class="delete-icon ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
-                    </svg>
-                </span>` : '';
-            htmlListado += `<li><span class="font-bold">${item.fecha}</span> - ${item.numero}${deleteButton}</li>`;
-        });
-        htmlListado += '</ul>';
+        const celdaNumero = document.createElement('td');
+        celdaNumero.classList.add('px-6', 'py-4', 'font-medium', 'text-gray-900', 'whitespace-nowrap');
+        celdaNumero.textContent = dato.numero;
 
-        listadoDatosDiv.innerHTML = htmlListado;
+        const celdaFecha = document.createElement('td');
+        celdaFecha.classList.add('px-6', 'py-4');
+        celdaFecha.textContent = dato.fecha;
+
+        const celdaAccion = document.createElement('td');
+        celdaAccion.classList.add('px-6', 'py-4', 'text-right');
+        const deleteIcon = document.createElement('span');
+        deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 delete-icon inline-block" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                                </svg>`;
+        deleteIcon.onclick = () => confirmarEliminar(dato.key, dato.numero);
+        celdaAccion.appendChild(deleteIcon);
+
+        fila.appendChild(celdaNumero);
+        fila.appendChild(celdaFecha);
+        fila.appendChild(celdaAccion);
+        cpiListDiv.appendChild(fila);
+      });
     }
-
+    
     function confirmarEliminar(key, numero) {
-        if (confirm(`¿Estás seguro de que quieres eliminar el registro con el número ${numero}?`)) {
-            eliminarDato(key);
-        }
+      if (confirm(`¿Estás seguro de que quieres eliminar el registro con el número ${numero}?`)) {
+        eliminarDato(key);
+      }
     }
 
     function eliminarDato(key) {
-        licenciasNuevasRef.child(key).remove()
-            .then(() => {
-                console.log("Registro eliminado con éxito.");
-                cargarDatosDesdeFirebase();
-                renderizarListado();
-            })
-            .catch((error) => {
-                console.error("Error al eliminar el registro:", error);
-                alert("Error al eliminar el registro.");
-            });
+      licenciasNuevasRef.child(key).remove()
+        .then(() => {
+          console.log("Registro eliminado con éxito.");
+        })
+        .catch((error) => {
+          console.error("Error al eliminar el registro:", error);
+        });
     }
 
     function buscarFecha() {
