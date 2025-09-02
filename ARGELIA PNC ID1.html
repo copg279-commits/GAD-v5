@@ -274,15 +274,28 @@
                 mensajeGuardadoDiv.style.color = 'red';
             });
     }
+    
+    // Función para formatear la fecha a DD/MM/YYYY
+    function formatoFecha(fechaStr) {
+      if (!fechaStr) return '';
+      // Verifica si el formato ya es DD/MM/YYYY
+      if (fechaStr.includes('/')) {
+        return fechaStr;
+      }
+      // Convierte YYYY-MM-DD a DD/MM/YYYY
+      const [year, month, day] = fechaStr.split('-');
+      if (year && month && day) {
+        return `${day}/${month}/${year}`;
+      }
+      return fechaStr; // Devuelve el original si el formato no es reconocible
+    }
 
     function renderizarTablaCpi() {
       cpiListDiv.innerHTML = '';
       
       const datosOrdenados = [...datosCompletos].sort((a, b) => {
-          const [d1, m1, y1] = a.fecha.split('/');
-          const [d2, m2, y2] = b.fecha.split('/');
-          const fechaA = new Date(`${y1}-${m1}-${d1}`);
-          const fechaB = new Date(`${y2}-${m2}-${d2}`);
+          const fechaA = new Date(formatoFecha(a.fecha).split('/').reverse().join('-'));
+          const fechaB = new Date(formatoFecha(b.fecha).split('/').reverse().join('-'));
           if (fechaA.getTime() === fechaB.getTime()) {
               return b.numero - a.numero;
           }
@@ -299,7 +312,7 @@
 
         const celdaFecha = document.createElement('td');
         celdaFecha.classList.add('cpi-table-cell', 'px-6', 'py-4', 'whitespace-nowrap');
-        celdaFecha.textContent = dato.fecha;
+        celdaFecha.textContent = formatoFecha(dato.fecha); // Aquí se aplica el nuevo formateo
 
         const celdaAccion = document.createElement('td');
         celdaAccion.classList.add('cpi-table-cell', 'px-6', 'py-4', 'text-right', 'whitespace-nowrap');
