@@ -709,8 +709,8 @@
       
       displayResults(filteredInfractions, searchTerm);
       
-      // Limpiar el campo de búsqueda después de la búsqueda
-      searchInput.value = '';
+      // ELIMINADO: Esta línea se eliminó para que el texto permanezca en el campo de búsqueda.
+      // searchInput.value = '';
     }
 
     // Función para mostrar resultados
@@ -900,14 +900,15 @@
       loadInfractionsFromFirebase();
     });
     
-    // Borrar el campo de búsqueda al hacer clic en él
-    searchInput.addEventListener('focus', () => {
-        searchInput.value = '';
-        showSuggestions();
-    });
+    // NO SE BORRA EL CAMPO DE BUSQUEDA AL HACER CLIC EN EL
+    // searchInput.addEventListener('focus', () => {
+    //     searchInput.value = '';
+    //     showSuggestions();
+    // });
     
     searchButton.addEventListener('click', searchInfractions);
     searchInput.addEventListener('keyup', (e) => {
+      // Se eliminó la función de limpieza, por lo que el texto se mantiene.
       if (e.key === 'Enter') {
         suggestionsBox.classList.add('hidden');
         searchInfractions();
