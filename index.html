@@ -61,8 +61,8 @@
                 font-size: 3rem; /* Tamaño de fuente original para desktop */
             }
         }
-
-        /* Estilos generales para el logo de construcción */
+        
+        /* Estilos generales para el logo de construcción y multa */
         .construccion-logo {
             position: absolute;
             right: 15px; /* Margen derecho para que no toque el borde */
@@ -70,19 +70,23 @@
             transform: translateY(-50%);
             height: 75%; /* Ajusta el tamaño al 75% de la altura del botón */
             width: auto; /* Mantiene la proporción */
-            opacity: 0.8; /* Hace el logo semitransparente para que no compita con el texto */
+            opacity: 0.8; /* Hace el logo semitransparente */
         }
-
         /* Estilos específicos para pantallas móviles (menos de 640px) */
         @media (max-width: 639px) { /* Esto es para 'sm' breakpoint en Tailwind */
             .construccion-logo {
                 height: 40%; /* Más pequeño en móviles */
                 right: 5px; /* Más pegado al borde en móviles */
                 opacity: 0.7; /* Ligeramente más transparente */
+                /* Posicionamiento en la esquina inferior derecha */
+                top: unset; /* Desactiva la posición superior */
+                transform: unset; /* Desactiva la transformación */
+                bottom: 5px; /* Lo ancla a 5px del borde inferior */
             }
-            /* Ajuste del padding para el texto del botón para dejar espacio al logo */
+            /* Ajuste del padding del botón para el texto */
             .btn-con-logo {
-                padding-right: 2.5rem; /* Tailwind 'pr-10' es 2.5rem (40px) para dejar espacio */
+                padding-right: 2.5rem; /* Deja espacio a la derecha para el logo */
+                padding-bottom: 2rem; /* Y espacio en la parte inferior */
             }
         }
     </style>
