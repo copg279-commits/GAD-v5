@@ -708,6 +708,9 @@
       filteredInfractions = sortInfractions(filteredInfractions);
       
       displayResults(filteredInfractions, searchTerm);
+      
+      // Limpiar el campo de búsqueda después de la búsqueda
+      searchInput.value = '';
     }
 
     // Función para mostrar resultados
@@ -746,10 +749,10 @@
               <div class="article-info">${formattedArticleInfo}</div>
               <p class="text-sm mt-2">${highlightedDescription}</p>
               <div class="flex flex-wrap gap-2 mt-2">
-                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${infraction.type.toUpperCase()}</span>
-                <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Total: ${infraction.totalAmount}€</span>
-                ${infraction.reducedAmount ? `<span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Reducido: ${infraction.reducedAmount}€</span>` : ''}
-                ${infraction.puntos ? `<span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full">Puntos: ${infraction.puntos}</span>` : ''}
+                <span class="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded-full">${infraction.type.toUpperCase()}</span>
+                <span class="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full">Total: ${infraction.totalAmount}€</span>
+                ${infraction.reducedAmount ? `<span class="text-sm px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Reducido: ${infraction.reducedAmount}€</span>` : ''}
+                ${infraction.puntos ? `<span class="text-sm px-2 py-1 bg-red-100 text-red-800 rounded-full">Puntos: ${infraction.puntos}</span>` : ''}
               </div>
               <div class="action-buttons">
                 <button class="btn-edit" data-key="${infraction.key}">
@@ -897,8 +900,11 @@
       loadInfractionsFromFirebase();
     });
     
-    // Nuevo event listener para mostrar sugerencias al hacer clic en el campo de búsqueda
-    searchInput.addEventListener('focus', showSuggestions);
+    // Borrar el campo de búsqueda al hacer clic en él
+    searchInput.addEventListener('focus', () => {
+        searchInput.value = '';
+        showSuggestions();
+    });
     
     searchButton.addEventListener('click', searchInfractions);
     searchInput.addEventListener('keyup', (e) => {
