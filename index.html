@@ -62,7 +62,7 @@
             }
         }
 
-        /* Nueva clase para el logo que resuelve el problema */
+        /* Estilos generales para el logo de construcción */
         .construccion-logo {
             position: absolute;
             right: 15px; /* Margen derecho para que no toque el borde */
@@ -71,6 +71,19 @@
             height: 75%; /* Ajusta el tamaño al 75% de la altura del botón */
             width: auto; /* Mantiene la proporción */
             opacity: 0.8; /* Hace el logo semitransparente para que no compita con el texto */
+        }
+
+        /* Estilos específicos para pantallas móviles (menos de 640px) */
+        @media (max-width: 639px) { /* Esto es para 'sm' breakpoint en Tailwind */
+            .construccion-logo {
+                height: 40%; /* Más pequeño en móviles */
+                right: 5px; /* Más pegado al borde en móviles */
+                opacity: 0.7; /* Ligeramente más transparente */
+            }
+            /* Ajuste del padding para el texto del botón para dejar espacio al logo */
+            .btn-con-logo {
+                padding-right: 2.5rem; /* Tailwind 'pr-10' es 2.5rem (40px) para dejar espacio */
+            }
         }
     </style>
 </head>
@@ -104,15 +117,15 @@
                 <a href="index EXTRANJERÍA.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
                     <span class="text-center">EXTRANJERÍA</span>
                 </a>
-                <a href="archivo6.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                <a href="archivo6.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative btn-con-logo">
                     <span class="text-center">EN CONSTRUCCIÓN</span>
                     <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
                 </a>
-                <a href="INFRACCIONES.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                <a href="INFRACCIONES.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative btn-con-logo">
                     <span class="text-center">CODIFICADO INFRACCIONES GAD</span>
                     <img src="logomulta.png" alt="Logo de multa" class="construccion-logo">
                 </a>
-                <a href="archivo8.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative">
+                <a href="archivo8.html" class="flex items-center justify-center p-4 lg:p-6 bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition-all duration-300 ease-in-out text-lg lg:text-xl relative btn-con-logo">
                     <span class="text-center">EN CONSTRUCCIÓN</span>
                     <img src="logoconstruccion.png" alt="En construcción" class="construccion-logo">
                 </a>
