@@ -146,7 +146,6 @@
     BUSCADOR DE INFRACCIONES DE TRÁFICO
   </h1>
 
-  <!-- Contenedor de búsqueda -->
   <div class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-lg shadow-md">
     <div class="search-container">
       <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
@@ -176,7 +175,6 @@
     </div>
   </div>
 
-  <!-- Resultados de búsqueda -->
   <div id="searchResults" class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-lg shadow-md">
     <h2 class="text-lg font-semibold mb-3">Listado de Infracciones</h2>
     <div id="resultsContainer" class="space-y-3 max-h-96 overflow-y-auto">
@@ -186,7 +184,6 @@
     <p id="noResults" class="hidden text-center text-gray-500 py-4">No se encontraron infracciones.</p>
   </div>
 
-  <!-- Botones de acción -->
   <div class="mt-8 flex flex-col items-center space-y-4">
     <button onclick="window.location.href='index.html'"
             class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
@@ -199,7 +196,6 @@
     </button>
   </div>
 
-  <!-- Modal para añadir nueva infracción -->
   <div id="addInfractionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md max-h-screen overflow-y-auto">
       <div class="p-4 border-b">
@@ -277,7 +273,6 @@
     </div>
   </div>
 
-  <!-- Modal para editar infracción -->
   <div id="editInfractionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
     <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md max-h-screen overflow-y-auto">
       <div class="p-4 border-b">
@@ -545,7 +540,61 @@
       suggestionsBox.innerHTML = '';
       suggestionsBox.classList.add('hidden');
       
-      if (searchTerm.length < 1) return;
+      // La lógica de la sugerencia se activa si el campo está vacío o si se está escribiendo
+      if (searchTerm.length === 0) {
+        // Mostrar todas las palabras clave agrupadas al hacer clic
+        let hasSuggestions = false;
+        
+        for (const [regulation, keywordsSet] of Object.entries(allKeywordsByRegulation)) {
+            const sortedKeywords = Array.from(keywordsSet).sort();
+            
+            if (sortedKeywords.length > 0) {
+              hasSuggestions = true;
+              
+              const regulationHeader = document.createElement('div');
+              regulationHeader.className = 'suggestion-regulation p-2 bg-gray-100';
+              regulationHeader.textContent = regulation;
+              suggestionsBox.appendChild(regulationHeader);
+              
+              sortedKeywords.forEach(keyword => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.className = 'suggestion-item';
+                suggestionItem.textContent = keyword;
+                
+                suggestionItem.addEventListener('click', () => {
+                  searchInput.value = keyword;
+                  suggestionsBox.classList.add('hidden');
+                  searchInfractions();
+                });
+                
+                suggestionsBox.appendChild(suggestionItem);
+              });
+            }
+        }
+        
+        if (hasSuggestions) {
+          suggestionsBox.classList.remove('hidden');
+        }
+        
+        return;
+      }
+      
+      // Lógica para reemplazar sugerencias para 105 y 106
+      if (searchTerm.includes('105') || searchTerm.includes('106')) {
+        // COMENTARIO: Añade aquí tus palabras clave personalizadas para 105 y 106
+        const customKeywords = 'Alquiler, Vehículos, Mercancías, Autorización, Transporte, Susceptible, Retirada, V8, V16';
+        const suggestionItem = document.createElement('div');
+        suggestionItem.className = 'suggestion-item';
+        suggestionItem.innerHTML = `<span class="suggestion-regulation">Sugerencias personalizadas</span><br><span class="suggestion-keywords">Palabras clave: ${customKeywords}</span>`;
+        suggestionItem.onclick = () => {
+          searchInput.value = customKeywords.split(',')[0].trim();
+          suggestionsBox.classList.add('hidden');
+          searchInfractions();
+        };
+        suggestionsBox.appendChild(suggestionItem);
+        suggestionsBox.classList.remove('hidden');
+        return;
+      }
       
       let hasSuggestions = false;
       
@@ -553,7 +602,7 @@
       for (const [regulation, keywordsSet] of Object.entries(allKeywordsByRegulation)) {
         const matchingKeywords = Array.from(keywordsSet).filter(keyword => 
           keyword.toLowerCase().includes(searchTerm)
-        );
+        ).sort();
         
         if (matchingKeywords.length > 0) {
           hasSuggestions = true;
@@ -847,6 +896,9 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadInfractionsFromFirebase();
     });
+    
+    // Nuevo event listener para mostrar sugerencias al hacer clic en el campo de búsqueda
+    searchInput.addEventListener('focus', showSuggestions);
     
     searchButton.addEventListener('click', searchInfractions);
     searchInput.addEventListener('keyup', (e) => {
