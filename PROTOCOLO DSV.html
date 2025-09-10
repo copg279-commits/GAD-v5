@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocolo de Actuación - GAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding-bottom: 50px; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        select, .editable-text { 
+            padding: 10px; 
+            margin-top: 10px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; 
+            font-size: 16px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            resize: none; 
+            overflow-y: hidden; 
+        }
+        .btn { padding: 8px 16px; border-radius: 5px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-edit { background-color: #3b82f6; color: white; border: none; }
+        .btn-save { background-color: #16a34a; color: white; border: none; }
+        .btn-cancel { background-color: #6b7280; color: white; border: none; }
+        .btn-delete { background-color: #dc2626; color: white; border: none; }
+        .result-box { margin-top: 20px; padding: 15px; border-radius: 5px; border: 1px solid; }
+        .result-box.delito { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .result-box.infraccion { background-color: #ffeeba; border-color: #ffc720; color: #664d03; }
+        .result-box.ok { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .menu-item-header {
+            padding: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .menu-item-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .editable-title-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: flex-start;
+        }
+        .editable-title-container input {
+            width: 100%;
+            font-size: 1.125rem; /* text-lg */
+            font-weight: bold;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .editable-title-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col pb-16">
+
+    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
+        <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
+            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+        </div>
+    </header>
+
+    <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
+        PROTOCOLO DSV
+    </h1>
+
+    <div class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-lg shadow-md container">
+        <p class="text-gray-700">Seleccione el supuesto para conocer el resultado:</p>
+        
+        <select id="main-select" onchange="showSubMenu(this.value)" class="w-full p-2 border border-gray-300 rounded-lg mt-2">
+            <option value="">-- Seleccionar supuesto --</option>
+            <option value="perdida-puntos">Pérdida de Vigencia por Puntos</option>
+            <option value="suspension-judicial">Suspensión por Resolución Judicial</option>
+            <option value="carencia">Carecer de Permiso</option>
+            <option value="psicofisicas">Pérdida de Condiciones Psicofísicas</option>
+        </select>
+
+        <button id="add-supuesto-btn" class="btn btn-save w-full mt-4"><i class="fas fa-plus-circle"></i> Añadir Nuevo Supuesto</button>
+
+        <div id="sub-menus" class="space-y-4 mt-4">
+        </div>
+
+        <div id="resultado" class="hidden result-box">
+            <h2 class="text-lg font-bold mb-2">Detalles del Caso</h2>
+            <div id="detalle-caso"></div>
+        </div>
+
+        <button onclick="window.location.href='index.html'" class="w-full p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md mt-6 transition hover:bg-yellow-200">
+            <i class="fas fa-arrow-left"></i> VOLVER AL MENÚ PRINCIPAL
+        </button>
+    </div>
+
+    <footer class="mt-auto text-center py-6 bg-gray-200">
+        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+        <p>&copy; GAD - Todos los derechos reservados</p>
+    </footer>
+
+    <div id="add-supuesto-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-4">Añadir Nuevo Supuesto</h3>
+            <label class="block text-sm font-medium text-gray-700">Nombre del Supuesto:</label>
+            <input type="text" id="new-supuesto-name" class="editable-text" placeholder="Ej. Retirada por pérdida de puntos">
+            <div class="mt-4 flex space-x-2">
+                <button id="save-supuesto-btn" class="btn btn-save"><i class="fas fa-save"></i> Guardar</button>
+                <button id="cancel-supuesto-btn" class="btn btn-cancel"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-situacion-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold mb-4">Añadir Nueva Situación</h3>
+            <label class="block text-sm font-medium text-gray-700">Hecho:</label>
+            <input type="text" id="new-situacion-hecho" class="editable-text">
+            <label class="block text-sm font-medium text-gray-700">Resumen:</label>
+            <textarea id="new-situacion-resumen" class="editable-text"></textarea>
+            <label class="block text-sm font-medium text-gray-700">Actuación:</label>
+            <textarea id="new-situacion-actuacion" class="editable-text"></textarea>
+            <label class="block text-sm font-medium text-gray-700">Requisito (opcional):</label>
+            <textarea id="new-situacion-requisito" class="editable-text"></textarea>
+            <div class="mt-4 flex space-x-2">
+                <button id="save-situacion-btn" class="btn btn-save"><i class="fas fa-save"></i> Guardar</button>
+                <button id="cancel-situacion-btn" class="btn btn-cancel"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
+            authDomain: "gad-alicante-f0d56.firebaseapp.com",
+            databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "gad-alicante-f0d56",
+            storageBucket: "gad-alicante-f0d56.firebasestorage.app",
+            messagingSenderId: "453863147861",
+            appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        const protocoloRef = database.ref('protocolo');
+
+        let data = {};
+        let currentSectionKey = '';
+
+        const localData = {
+            'perdida-puntos': { name: "Pérdida de Vigencia por Puntos", options: { 'conduce-durante': { hecho: "Conduce durante periodo de pérdida de vigencia", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art. 1.1.5A RGCond. NO se entrega copia al denunciado. + Inmovilización.", tipo: "delito" }, 'finalizado-no-curso-examen': { hecho: "Conduce finalizado periodo de pérdida (No realiza curso, ni examen)", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art. 1.1.5A RGCond. NO se entrega copia al denunciado. + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial, + prueba de aptitud (examen).", tipo: "delito" }, 'finalizado-no-examen': { hecho: "Conduce finalizado periodo de pérdida (Sí realiza curso, no examen)", resumen: "ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art. 1.1.5A RGCond. NO se entrega copia al denunciado. + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial, + prueba de aptitud (examen).", tipo: "delito" }, 'finalizado-si-examen': { hecho: "Conduce finalizado periodo de pérdida (Sí realiza curso, sí examen)", resumen: "OK - CONTINÚA VIAJE", actuacion: "La situación está regularizada. No procede ninguna acción.", tipo: "ok" }, 'no-conocimiento': { hecho: "No tiene conocimiento de la pérdida de vigencia edictal", resumen: "INFRACCIÓN RGCOND 1.1.5A (500€)", actuacion: "Denuncia art. 1.1.5A RGCond. + Inmovilización. NO procede Imputación Penal. Anotar en la denuncia que el conductor queda enterado de la pérdida de vigencia de la JPT correspondiente.", tipo: "infraccion" }, 'incidencias-recurso': { hecho: "Incidencias: \"En periodo de presentación de recurso\"", resumen: "INFRACCIÓN RGCOND 1.1.5A (500€)", actuacion: "Conduce con pérdida de vigencia en Periodo de PRESENTACIÓN DE RECURSO DE ALZADA. Denuncia art. 1.1.5A RGCond. + Inmovilización. NO procede Imputación Penal.", tipo: "infraccion" }, 'incidencias-pendiente': { hecho: "Incidencias: \"Pendiente de resolver recurso\"", resumen: "INFRACCIÓN RGCOND 1.1.5A (500€)", actuacion: "Conduce con pérdida de vigencia PENDIENTE DE RESOLVER RECURSO. Denuncia art. 1.1.5A RGCond. + Inmovilización. NO procede Imputación Penal.", tipo: "infraccion" }, 'conducir-con-perdida': { hecho: "Conducir con pérdida de vigencia (sólo en España)", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art. 1.1.5A RGCond. NO se entrega copia del boletín al denunciado. + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial, + prueba de aptitud (examen).", tipo: "delito" } } },
+            'suspension-judicial': { name: "Suspensión por Resolución Judicial", options: { 'dentro-condena-menor': { hecho: "Condena ≤ 2 años: Conduce DENTRO del periodo de condena", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art 1.1.5D RGCond haciendo constar el nº de diligencias y Autoridad Judicial (NO se entrega copia del boletín al denunciado) + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial.", tipo: "delito" }, 'finalizado-condena-menor-no-curso': { hecho: "Condena ≤ 2 años: Conduce FINALIZADO SIN realizar el curso", resumen: "INFRACCIÓN RGCOND 1.1.5D (200€)", actuacion: "Denuncia art. 1.1.5D RGCond. Se entrega copia al denunciado. NO Inmovilización. NO Imputación Penal.", tipo: "infraccion" }, 'finalizado-condena-menor-si-curso': { hecho: "Condena ≤ 2 años: Conduce FINALIZADO CON curso", resumen: "OK - CONTINÚA VIAJE", actuacion: "La situación está regularizada. No procede ninguna acción.", tipo: "ok" }, 'dentro-condena-mayor': { hecho: "Condena > 2 años: Conduce DENTRO del periodo de condena", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art 1.1.5A RGCond haciendo constar el nº de diligencias y Autoridad Judicial (NO se entrega copia del boletín al denunciado) + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial, + prueba de aptitud (examen).", tipo: "delito" }, 'finalizado-condena-mayor-no-curso-examen': { hecho: "Condena > 2 años: Conduce FINALIZADO SIN curso NI EXAMEN", resumen: "DELITO QUEBRANTAMIENTO CONDENA art.468 CP - ATESTADO", actuacion: "Diligencias por QUEBRANTAMIENTO (Art 468 CP) y boletín de denuncia art 1.1.5A RGCond haciendo constar el nº de diligencias y Autoridad Judicial (NO se entrega copia del boletín al denunciado) + Inmovilización.", requisito: "Debe realizar curso de sensibilización y reeducación vial, + prueba de aptitud (examen).", tipo: "delito" }, 'finalizado-condena-mayor-si-curso-examen': { hecho: "Condena > 2 años: Conduce FINALIZADO CON curso Y EXAMEN", resumen: "OK - CONTINÚA VIAJE", actuacion: "La situación está regularizada. No procede ninguna acción.", tipo: "ok" } } },
+            'carencia': { name: "Carecer de Permiso", options: { 'nunca-obtenido': { hecho: "No haberlo obtenido nunca", resumen: "DELITO LSV art.384 CP- ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art 1.1.5A RGCond haciendo constar el nº de diligencias y Autoridad Judicial (NO se entrega copia del boletín al denunciado) + Inmovilización.", tipo: "delito" }, 'carecer-permiso': { hecho: "Carecer de permiso (civil, militar o de otro país)", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias por un delito contra la Seguridad Vial (art 384 CP), y boletín de denuncia art 1.1.5A RGCond haciendo constar el nº de diligencias y Autoridad Judicial (NO se entrega copia del boletín al denunciado) + Inmovilización.", tipo: "delito" } } },
+            'psicofisicas': { name: "Pérdida de Condiciones Psicofísicas", options: { 'perdida-psicofisicas': { hecho: "Pérdida de vigencia por pérdida de condiciones psicofísicas", resumen: "INFRACCIÓN RGCOND 1.1.5A (500€)", actuacion: "Denuncia art. 1.1.5A RGCond. Se entrega copia al denunciado. + Inmovilización. NO Imputación Penal.", tipo: "infraccion" }, 'sin-requisitos': { hecho: "Conducir sin mantener los requisitos exigidos en su día", resumen: "INFRACCIÓN RGCOND 12.6.5A (200€)", actuacion: "Denuncia art. 12.6.5A RGCond. Se entrega copia al denunciado. NO Inmovilización. NO Imputación Penal.", tipo: "infraccion" } } }
+        };
+
+        function showSubMenu(sectionKey) {
+            currentSectionKey = sectionKey;
+            const subMenusContainer = document.getElementById('sub-menus');
+            const resultDiv = document.getElementById('resultado');
+
+            resultDiv.classList.add('hidden');
+            subMenusContainer.innerHTML = '';
+            
+            if (!sectionKey) {
+                return;
+            }
+
+            const section = data[sectionKey];
+            const selectHtml = `
+                <div class="bg-gray-200 p-4 rounded-lg shadow-md mt-4">
+                    <div id="section-header-${sectionKey}" class="menu-item-header">
+                        <h2 id="section-title-${sectionKey}" class="text-md font-bold text-gray-800">${section.name}</h2>
+                        <div class="menu-item-buttons">
+                            <button class="btn btn-edit" onclick="makeSectionEditable('${sectionKey}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-delete" onclick="deleteSupuesto('${sectionKey}')"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mt-2 mb-1">Seleccione una situación:</label>
+                    <select id="situacion-select" onchange="showResult('${sectionKey}', this.value)" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="">-- Seleccionar --</option>
+                        ${Object.keys(section.options).map(optionKey => `
+                            <option value="${optionKey}">${section.options[optionKey].hecho}</option>
+                        `).join('')}
+                    </select>
+                    <button class="btn btn-save w-full mt-4" onclick="document.getElementById('add-situacion-modal').classList.remove('hidden')">
+                        <i class="fas fa-plus-circle"></i> Añadir Nueva Situación
+                    </button>
+                </div>
+            `;
+            subMenusContainer.innerHTML = selectHtml;
+        }
+
+        function showResult(sectionKey, optionKey) {
+            const resultDiv = document.getElementById('resultado');
+            const detailDiv = document.getElementById('detalle-caso');
+            
+            if (!optionKey) {
+                resultDiv.classList.add('hidden');
+                return;
+            }
+            
+            const info = data[sectionKey].options[optionKey];
+            let html = `
+                <div data-field="hecho" class="editable-field"><strong>Hecho:</strong> <span>${info.hecho}</span></div>
+                <div data-field="resumen" class="editable-field"><strong>Resumen:</strong> <span>${info.resumen}</span></div>
+                <div data-field="actuacion" class="editable-field"><strong>Actuación:</strong> <span>${info.actuacion}</span></div>
+            `;
+            if (info.requisito) {
+                html += `<div data-field="requisito" class="editable-field"><strong>Requisito:</strong> <span>${info.requisito}</span></div>`;
+            }
+            
+            html += `
+                <div class="mt-4 flex flex-col space-y-2">
+                    <button class="btn btn-edit-result btn-edit w-full" data-section="${sectionKey}" data-option="${optionKey}"><i class="fas fa-edit"></i> Editar</button>
+                    <button class="btn btn-delete-result btn-delete w-full" data-section="${sectionKey}" data-option="${optionKey}"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                </div>
+            `;
+            
+            detailDiv.innerHTML = html;
+            resultDiv.className = `result-box ${info.tipo}`;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // --- Funciones para Añadir/Editar/Eliminar ---
+        function autoGrowTextarea(element) {
+            element.style.height = "5px"; 
+            element.style.height = (element.scrollHeight) + "px";
+        }
+
+        function makeEditable(sectionKey, optionKey) {
+            const detailDiv = document.getElementById('detalle-caso');
+            const editButton = detailDiv.querySelector('.btn-edit-result');
+            const deleteButton = detailDiv.querySelector('.btn-delete-result');
+            if (editButton) editButton.classList.add('hidden');
+            if (deleteButton) deleteButton.classList.add('hidden');
+
+            const fields = detailDiv.querySelectorAll('.editable-field');
+            const info = data[sectionKey].options[optionKey];
+            
+            fields.forEach(field => {
+                const fieldName = field.dataset.field;
+                const currentValue = info[fieldName] || '';
+                const fieldId = `edit-${sectionKey}-${optionKey}-${fieldName}`;
+
+                field.innerHTML = `
+                    <div class="editable-title-container">
+                        <label class="block text-sm font-medium text-gray-700 mt-2">${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}:</label>
+                        ${fieldName === 'hecho' ? 
+                            `<input type="text" id="${fieldId}" value="${currentValue}" class="editable-text">` :
+                            `<textarea class="editable-text" id="${fieldId}" data-field-name="${fieldName}">${currentValue}</textarea>`
+                        }
+                    </div>
+                `;
+                
+                if (fieldName !== 'hecho') {
+                    const textarea = document.getElementById(fieldId);
+                    textarea.addEventListener('input', () => autoGrowTextarea(textarea));
+                    setTimeout(() => autoGrowTextarea(textarea), 0);
+                }
+            });
+
+            const buttonsHtml = `
+                <div class="mt-4 flex space-x-2" id="edit-buttons">
+                    <button class="btn btn-save" data-section="${sectionKey}" data-option="${optionKey}"><i class="fas fa-save"></i> Guardar</button>
+                    <button class="btn btn-cancel" data-section="${sectionKey}" data-option="${optionKey}"><i class="fas fa-times"></i> Cancelar</button>
+                </div>
+            `;
+            const oldButtons = document.getElementById('edit-buttons');
+            if (oldButtons) oldButtons.remove();
+            detailDiv.insertAdjacentHTML('beforeend', buttonsHtml);
+        }
+
+        function saveChanges(sectionKey, optionKey) {
+            const detailDiv = document.getElementById('detalle-caso');
+            const newValues = {};
+            
+            const hechoInput = detailDiv.querySelector('input[type="text"]');
+            if (hechoInput) {
+                newValues.hecho = hechoInput.value.trim();
+                if (!newValues.hecho) {
+                    alert('El campo "Hecho" no puede estar vacío.');
+                    return;
+                }
+            }
+            
+            const textareas = detailDiv.querySelectorAll('textarea.editable-text');
+            textareas.forEach(textarea => {
+                const fieldName = textarea.dataset.fieldName;
+                newValues[fieldName] = textarea.value;
+            });
+            
+            const firebasePath = `protocolo/${sectionKey}/options/${optionKey}`;
+            database.ref(firebasePath).update(newValues)
+                .then(() => {
+                    alert('Cambios guardados en Firebase con éxito!');
+                    Object.assign(data[sectionKey].options[optionKey], newValues);
+                    showSubMenu(sectionKey);
+                })
+                .catch(error => {
+                    console.error("Error al guardar en Firebase:", error);
+                    alert("Error al guardar en Firebase. Revisa la consola para más detalles.");
+                    showSubMenu(sectionKey);
+                });
+        }
+        
+        function cancelEdit(sectionKey, optionKey) {
+            showResult(sectionKey, optionKey);
+        }
+
+        function makeSectionEditable(sectionKey) {
+            const sectionHeader = document.getElementById(`section-header-${sectionKey}`);
+            const originalName = data[sectionKey].name;
+            
+            const editHtml = `
+                <div class="editable-title-container">
+                    <input type="text" id="edit-section-name" value="${originalName}">
+                    <div class="editable-title-buttons">
+                        <button class="btn btn-save" onclick="saveSectionName('${sectionKey}')"><i class="fas fa-save"></i> Guardar</button>
+                        <button class="btn btn-cancel" onclick="cancelSectionEdit('${sectionKey}', '${originalName}')"><i class="fas fa-times"></i> Cancelar</button>
+                    </div>
+                </div>
+            `;
+            sectionHeader.innerHTML = editHtml;
+        }
+
+        function saveSectionName(sectionKey) {
+            const newName = document.getElementById('edit-section-name').value;
+            const firebasePath = `protocolo/${sectionKey}/name`;
+            database.ref(firebasePath).set(newName)
+                .then(() => {
+                    alert('Nombre de supuesto actualizado con éxito!');
+                    data[sectionKey].name = newName;
+                    showSubMenu(sectionKey);
+                    updateMainSelect();
+                })
+                .catch(error => {
+                    console.error("Error al guardar el nombre:", error);
+                    alert("Error al guardar el nombre. Revisa la consola.");
+                });
+        }
+
+        function cancelSectionEdit(sectionKey, originalName) {
+            data[sectionKey].name = originalName;
+            showSubMenu(sectionKey);
+        }
+        
+        function deleteSupuesto(sectionKey) {
+            if (confirm(`¿Estás seguro de que deseas eliminar el supuesto "${data[sectionKey].name}" y todas sus situaciones? Esta acción no se puede deshacer.`)) {
+                const firebasePath = `protocolo/${sectionKey}`;
+                database.ref(firebasePath).remove()
+                    .then(() => {
+                        alert('Supuesto eliminado con éxito!');
+                        delete data[sectionKey];
+                        updateMainSelect();
+                        showSubMenu('');
+                    })
+                    .catch(error => {
+                        console.error("Error al eliminar supuesto:", error);
+                        alert("Error al eliminar el supuesto. Revisa la consola.");
+                    });
+            }
+        }
+
+        function deleteSituation(sectionKey, optionKey) {
+            if (confirm(`¿Estás seguro de que deseas eliminar la situación "${data[sectionKey].options[optionKey].hecho}"? Esta acción no se puede deshacer.`)) {
+                const firebasePath = `protocolo/${sectionKey}/options/${optionKey}`;
+                database.ref(firebasePath).remove()
+                    .then(() => {
+                        alert('Situación eliminada con éxito!');
+                        delete data[sectionKey].options[optionKey];
+                        showSubMenu(sectionKey);
+                    })
+                    .catch(error => {
+                        console.error("Error al eliminar situación:", error);
+                        alert("Error al eliminar la situación. Revisa la consola.");
+                    });
+            }
+        }
+
+        function updateMainSelect() {
+            const mainSelect = document.getElementById('main-select');
+            const selectedValue = mainSelect.value;
+            mainSelect.innerHTML = `<option value="">-- Seleccionar supuesto --</option>`;
+            for (const key in data) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = data[key].name;
+                mainSelect.appendChild(option);
+            }
+            if (data[selectedValue]) {
+                mainSelect.value = selectedValue;
+            }
+        }
+
+        // --- Event Listeners para Modales ---
+        document.getElementById('add-supuesto-btn').addEventListener('click', () => {
+            document.getElementById('add-supuesto-modal').classList.remove('hidden');
+        });
+        document.getElementById('cancel-supuesto-btn').addEventListener('click', () => {
+            document.getElementById('add-supuesto-modal').classList.add('hidden');
+            document.getElementById('new-supuesto-name').value = '';
+        });
+        document.getElementById('save-supuesto-btn').addEventListener('click', () => {
+            const newName = document.getElementById('new-supuesto-name').value.trim();
+            if (!newName) {
+                alert('El nombre del supuesto no puede estar vacío.');
+                return;
+            }
+            const newKey = newName.toLowerCase().replace(/\s/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const newSupuesto = {
+                name: newName,
+                options: {}
+            };
+            protocoloRef.child(newKey).set(newSupuesto)
+                .then(() => {
+                    alert('Nuevo supuesto añadido con éxito!');
+                    data[newKey] = newSupuesto;
+                    updateMainSelect();
+                    document.getElementById('add-supuesto-modal').classList.add('hidden');
+                    document.getElementById('new-supuesto-name').value = '';
+                })
+                .catch(error => {
+                    console.error("Error al añadir supuesto:", error);
+                    alert("Error al añadir el supuesto. Revisa la consola.");
+                });
+        });
+
+        document.getElementById('save-situacion-btn').addEventListener('click', () => {
+            const hecho = document.getElementById('new-situacion-hecho').value.trim();
+            const resumen = document.getElementById('new-situacion-resumen').value.trim();
+            const actuacion = document.getElementById('new-situacion-actuacion').value.trim();
+            const requisito = document.getElementById('new-situacion-requisito').value.trim();
+
+            if (!hecho || !resumen || !actuacion) {
+                alert('Los campos Hecho, Resumen y Actuación son obligatorios.');
+                return;
+            }
+            
+            const newKey = hecho.toLowerCase().replace(/\s/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const newSituacion = {
+                hecho: hecho,
+                resumen: resumen,
+                actuacion: actuacion,
+                requisito: requisito || undefined,
+                tipo: 'ok' // Valor por defecto, se puede cambiar
+            };
+
+            const firebasePath = `protocolo/${currentSectionKey}/options/${newKey}`;
+            database.ref(firebasePath).set(newSituacion)
+                .then(() => {
+                    alert('Nueva situación añadida con éxito!');
+                    data[currentSectionKey].options[newKey] = newSituacion;
+                    showSubMenu(currentSectionKey);
+                    document.getElementById('add-situacion-modal').classList.add('hidden');
+                    document.getElementById('new-situacion-hecho').value = '';
+                    document.getElementById('new-situacion-resumen').value = '';
+                    document.getElementById('new-situacion-actuacion').value = '';
+                    document.getElementById('new-situacion-requisito').value = '';
+                })
+                .catch(error => {
+                    console.error("Error al añadir situación:", error);
+                    alert("Error al añadir la situación. Revisa la consola.");
+                });
+        });
+
+        document.getElementById('cancel-situacion-btn').addEventListener('click', () => {
+            document.getElementById('add-situacion-modal').classList.add('hidden');
+            document.getElementById('new-situacion-hecho').value = '';
+            document.getElementById('new-situacion-resumen').value = '';
+            document.getElementById('new-situacion-actuacion').value = '';
+            document.getElementById('new-situacion-requisito').value = '';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-edit-result')) {
+                const button = e.target.closest('.btn-edit-result');
+                const sectionKey = button.dataset.section;
+                const optionKey = button.dataset.option;
+                if(sectionKey && optionKey) {
+                    makeEditable(sectionKey, optionKey);
+                }
+            } else if (e.target.closest('.btn-save')) {
+                const button = e.target.closest('.btn-save');
+                const sectionKey = button.dataset.section;
+                const optionKey = button.dataset.option;
+                if(sectionKey && optionKey) {
+                    saveChanges(sectionKey, optionKey);
+                }
+            } else if (e.target.closest('.btn-cancel')) {
+                const button = e.target.closest('.btn-cancel');
+                const sectionKey = button.dataset.section;
+                const optionKey = button.dataset.option;
+                if(sectionKey && optionKey) {
+                    cancelEdit(sectionKey, optionKey);
+                }
+            } else if (e.target.closest('.btn-delete-result')) {
+                const button = e.target.closest('.btn-delete-result');
+                const sectionKey = button.dataset.section;
+                const optionKey = button.dataset.option;
+                if(sectionKey && optionKey) {
+                    deleteSituation(sectionKey, optionKey);
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            protocoloRef.once('value')
+                .then(snapshot => {
+                    const firebaseData = snapshot.val();
+                    if (!firebaseData) {
+                        console.log("No se encontraron datos en Firebase. Se subirán los datos iniciales.");
+                        protocoloRef.set(localData).then(() => {
+                             data = localData;
+                             console.log("Datos iniciales subidos a Firebase.");
+                             updateMainSelect();
+                        }).catch(error => {
+                            console.error("Error al subir datos iniciales a Firebase:", error);
+                            alert("No se pudieron subir los datos iniciales a Firebase. Revisa tus reglas de seguridad.");
+                            data = localData;
+                            updateMainSelect();
+                        });
+                    } else {
+                        data = firebaseData;
+                        console.log("Datos cargados desde Firebase.");
+                        updateMainSelect();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al conectar con Firebase:", error);
+                    data = localData;
+                    console.log("Se usarán los datos locales por defecto.");
+                    updateMainSelect();
+                });
+        });
+    </script>
+</body>
+</html>
