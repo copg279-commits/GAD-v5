@@ -17,7 +17,6 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
 
-<!-- HEADER AZUL AJUSTADO A LA ALTURA DEL LOGO -->
 <header class="bg-blue-600 w-full flex justify-center items-center py-2">
   <div class="w-40 h-40 rounded-full overflow-hidden shadow-lg">
     <img 
@@ -29,13 +28,15 @@
 </header>
 
 
-
     <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-        Equivalencias de Licencias
+        Equivalencias de PNC USA-ESPAÑA
     </h1>
 
     <p class="text-center mt-2 px-4">
-        Selecciona un estado de EE. UU. para ver las equivalencias de las categorías de su licencia en España:
+        Selecciona un estado de EE. UU. para ver las equivalencias de las categorías
+    </p>
+    <p class="text-center px-4">
+        de su licencia en España:
     </p>
 
     <select id="estados" onchange="mostrarCategorias()" 
@@ -94,7 +95,7 @@
         <option value="Wyoming">Wyoming</option>
     </select>
 
-    <div id="resultado" class="w-11/12 max-w-md mx-auto mt-6"></div>
+    <div id="resultado" class="w-11/2 max-w-md mx-auto mt-6"></div>
 
     <div class="mt-8 flex justify-center">
     <button onclick="window.location.href='index.html'"
@@ -103,12 +104,12 @@
     </button>
 </div>
 
-    <footer class="mt-auto text-center py-6 bg-gray-200">
-        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-        <p>GAD - Todos los derechos reservados</p>
-    </footer>
+<footer class="mt-auto text-center py-1 bg-gray-200 text-xs sm:text-sm">
+    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-0.5">
+    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+    <p>&copy; GAD - Todos los derechos reservados</p>
+</footer>
 
     <script>
         const estados = {
