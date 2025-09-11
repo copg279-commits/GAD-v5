@@ -43,7 +43,7 @@
         }
         .task-item {
             display: flex;
-            align-items: flex-start;
+            align-items: flex-start; /* Modificado: Alinea los elementos en la parte superior */
             justify-content: space-between;
             padding: 0.75rem;
             background-color: #f9fafb;
@@ -51,7 +51,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.2s ease-in-out;
             flex-direction: row;
-            gap: 0.5rem;
         }
         @media (max-width: 639px) {
             .task-item {
@@ -90,21 +89,14 @@
             font-weight: bold;
             text-decoration: line-through;
         }
-        .task-text-container {
-            flex: 1;
-            min-width: 0; /* Permite que el texto se ajuste */
-        }
         .task-text {
-            word-break: break-word; /* Ajusta texto largo en múltiples líneas */
-            overflow-wrap: break-word;
-            display: block;
-            width: 100%;
+            flex-grow: 1;
         }
         .task-status-container {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             gap: 0.5rem;
-            flex-shrink: 0; /* Evita que se reduzca el contenedor de botones */
+            flex-shrink: 0; /* Añadido: Evita que los botones se encojan */
         }
         .task-status-btn, .edit-btn {
             padding: 0.25rem 0.5rem;
@@ -114,7 +106,6 @@
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.2s;
-            white-space: nowrap; /* Evita que el texto de botones se divida */
         }
         /* 🎨 BOTONES INACTIVOS - Colores muy claros */
         .task-status-btn.inactive {
@@ -165,25 +156,16 @@
             color: black;
             font-weight: bold;
         }
-        
-        /* Estilos para el textarea de edición */
-        .edit-textarea {
-            width: 100%;
-            min-height: 60px;
-            padding: 0.5rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.375rem;
-            resize: vertical;
-            box-sizing: border-box;
-            font-family: inherit;
-            font-size: inherit;
+        /* Contenedor para el texto de la tarea */
+        .task-text-container {
+            display: flex;
+            flex-grow: 1;
+            flex-shrink: 1; /* Añadido: Permite que este contenedor se encoja si es necesario */
         }
-        
-        /* Ajustes para el modo edición en dispositivos móviles */
-        @media (max-width: 639px) {
-            .edit-textarea {
-                min-height: 80px;
-            }
+
+        .task-text {
+            word-break: break-word; /* Clave para el salto de línea */
+            width: 100%; /* Asegura que ocupe todo el ancho disponible */
         }
     </style>
 </head>
@@ -288,36 +270,21 @@
                     const currentText = task.description;
                     const input = document.createElement('textarea');
                     input.value = currentText;
-                    input.className = 'edit-textarea';
-                    
-                    // Ajustar altura automáticamente
-                    input.addEventListener('input', function() {
-                        this.style.height = 'auto';
-                        this.style.height = (this.scrollHeight) + 'px';
-                    });
-                    
-                    // Inicializar con la altura correcta
-                    setTimeout(() => {
-                        input.style.height = 'auto';
-                        input.style.height = (input.scrollHeight) + 'px';
-                    }, 0);
-
+                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full resize-y';
+                    input.rows = 2; // Inicia con al menos dos filas para que se vea como un área de texto
                     const saveChanges = () => {
                         const newText = input.value.trim();
                         if (newText && newText !== currentText) {
                             tasksRef.child(taskId).update({ description: newText });
                         }
-                        taskText.textContent = `${formattedDate} - ${newText || currentText}`;
                         taskTextContainer.replaceChild(taskText, input);
                     };
-                    
                     input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
+                        if (e.key === 'Enter' && !e.shiftKey) { // Permite Shift+Enter para nueva línea sin guardar
+                            e.preventDefault(); // Evita el salto de línea por defecto
                             saveChanges();
                         }
                     });
-                    
                     input.addEventListener('blur', saveChanges);
                     taskTextContainer.replaceChild(input, taskText);
                     input.focus();
