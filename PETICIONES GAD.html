@@ -123,7 +123,7 @@
             background-color: #bbf7d0; /* Verde muy claro */
             color: #15803d;
         }
-        
+
         /* 🌈 BOTONES ACTIVOS - Colores vibrantes con efectos */
         .task-status-btn.active {
             border-color: #000;
@@ -144,7 +144,7 @@
             background-color: #22c55e; /* Verde vibrante */
             color: white;
         }
-        
+
         .add-task-form {
             display: flex;
             gap: 0.5rem;
@@ -212,7 +212,7 @@
         const addTaskForm = document.getElementById('add-task-form');
         const newTaskInput = document.getElementById('new-task-input');
         const mainMenuBtn = document.getElementById('main-menu-btn');
-        
+
         const renderTask = (snapshot) => {
             taskList.innerHTML = '';
             snapshot.forEach(childSnapshot => {
@@ -221,16 +221,16 @@
                 const taskItem = document.createElement('div');
                 taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
                 taskItem.setAttribute('data-id', taskId);
-                
+
                 // Contenedor para el texto
                 const taskTextContainer = document.createElement('div');
                 taskTextContainer.className = 'task-text-container';
-                
+
                 const taskText = document.createElement('span');
                 taskText.className = 'task-text ml-2';
                 const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
-                
+
                 switch (task.status) {
                     case 'Pendiente':
                         taskText.style.color = '#ef4444';
@@ -248,23 +248,23 @@
                         taskText.style.textDecoration = 'line-through';
                         break;
                 }
-                
+
                 taskTextContainer.appendChild(taskText);
                 taskItem.appendChild(taskTextContainer);
-                
+
                 const statusContainer = document.createElement('div');
                 statusContainer.className = 'task-status-container';
-                
+
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
                 editButton.textContent = '✏️';
                 editButton.title = 'Editar tarea';
                 editButton.addEventListener('click', () => {
                     const currentText = task.description;
-                    const input = document.createElement('input');
-                    input.type = 'text';
+                    const input = document.createElement('textarea');
                     input.value = currentText;
-                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full';
+                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full resize-y';
+                    input.rows = 2; // Inicia con al menos dos filas para que se vea como un área de texto
                     const saveChanges = () => {
                         const newText = input.value.trim();
                         if (newText && newText !== currentText) {
@@ -273,7 +273,8 @@
                         taskTextContainer.replaceChild(taskText, input);
                     };
                     input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === 'Enter' && !e.shiftKey) { // Permite Shift+Enter para nueva línea sin guardar
+                            e.preventDefault(); // Evita el salto de línea por defecto
                             saveChanges();
                         }
                     });
@@ -282,13 +283,13 @@
                     input.focus();
                 });
                 statusContainer.appendChild(editButton);
-                
+
                 const statuses = [
                     { name: 'Pendiente', colorClass: 'btn-pendiente' },
                     { name: 'En trámite', colorClass: 'btn-tramite' },
                     { name: 'Finalizada', colorClass: 'btn-finalizada' }
                 ];
-                
+
                 statuses.forEach(status => {
                     const button = document.createElement('button');
                     button.className = `task-status-btn ${status.colorClass} inactive`;
@@ -309,14 +310,14 @@
                     });
                     statusContainer.appendChild(button);
                 });
-                
+
                 taskItem.appendChild(statusContainer);
                 taskList.appendChild(taskItem);
             });
         };
-        
+
         tasksRef.orderByChild('createdAt').on('value', renderTask);
-        
+
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const description = newTaskInput.value.trim();
@@ -333,7 +334,7 @@
                 }
             }
         });
-        
+
         mainMenuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
