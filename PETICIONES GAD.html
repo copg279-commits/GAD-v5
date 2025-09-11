@@ -67,6 +67,14 @@
                 flex: 1 1 auto;
                 min-width: 0;
             }
+            /* Hace que el texto ocupe todo el ancho en móviles */
+            .task-text-container {
+                width: 100%;
+            }
+            .task-text {
+                width: 100%;
+                word-break: break-word;
+            }
         }
         .task-item.pendiente .task-text {
             color: #ef4444;
@@ -98,15 +106,45 @@
             border: 2px solid transparent;
             transition: all 0.2s;
         }
-        /* 🎨 AJUSTES: Filtro para botones inactivos mucho más claros */
-        .task-status-btn {
-            filter: brightness(150%) grayscale(60%);
+        /* 🎨 BOTONES INACTIVOS - Colores muy claros */
+        .task-status-btn.inactive {
+            opacity: 0.4;
+            filter: saturate(40%);
         }
-        /* 🌈 AJUSTES: Estilo para el botón activo, sin filtros para máxima intensidad */
+        .btn-pendiente.inactive {
+            background-color: #fecaca; /* Rojo muy claro */
+            color: #b91c1c;
+        }
+        .btn-tramite.inactive {
+            background-color: #bfdbfe; /* Azul muy claro */
+            color: #1d4ed8;
+        }
+        .btn-finalizada.inactive {
+            background-color: #bbf7d0; /* Verde muy claro */
+            color: #15803d;
+        }
+        
+        /* 🌈 BOTONES ACTIVOS - Colores vibrantes con efectos */
         .task-status-btn.active {
             border-color: #000;
-            filter: none;
+            opacity: 1;
+            filter: saturate(120%);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            transform: scale(1.05);
         }
+        .btn-pendiente.active {
+            background-color: #ef4444; /* Rojo vibrante */
+            color: white;
+        }
+        .btn-tramite.active {
+            background-color: #3b82f6; /* Azul vibrante */
+            color: white;
+        }
+        .btn-finalizada.active {
+            background-color: #22c55e; /* Verde vibrante */
+            color: white;
+        }
+        
         .add-task-form {
             display: flex;
             gap: 0.5rem;
@@ -116,6 +154,11 @@
             background-color: #d1d5db;
             color: black;
             font-weight: bold;
+        }
+        /* Contenedor para el texto de la tarea */
+        .task-text-container {
+            display: flex;
+            flex-grow: 1;
         }
     </style>
 </head>
@@ -169,6 +212,7 @@
         const addTaskForm = document.getElementById('add-task-form');
         const newTaskInput = document.getElementById('new-task-input');
         const mainMenuBtn = document.getElementById('main-menu-btn');
+        
         const renderTask = (snapshot) => {
             taskList.innerHTML = '';
             snapshot.forEach(childSnapshot => {
@@ -177,10 +221,16 @@
                 const taskItem = document.createElement('div');
                 taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
                 taskItem.setAttribute('data-id', taskId);
+                
+                // Contenedor para el texto
+                const taskTextContainer = document.createElement('div');
+                taskTextContainer.className = 'task-text-container';
+                
                 const taskText = document.createElement('span');
                 taskText.className = 'task-text ml-2';
                 const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
+                
                 switch (task.status) {
                     case 'Pendiente':
                         taskText.style.color = '#ef4444';
@@ -198,8 +248,13 @@
                         taskText.style.textDecoration = 'line-through';
                         break;
                 }
+                
+                taskTextContainer.appendChild(taskText);
+                taskItem.appendChild(taskTextContainer);
+                
                 const statusContainer = document.createElement('div');
                 statusContainer.className = 'task-status-container';
+                
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
                 editButton.textContent = '✏️';
@@ -209,13 +264,13 @@
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.value = currentText;
-                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md';
+                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full';
                     const saveChanges = () => {
                         const newText = input.value.trim();
                         if (newText && newText !== currentText) {
                             tasksRef.child(taskId).update({ description: newText });
                         }
-                        taskItem.replaceChild(taskText, input);
+                        taskTextContainer.replaceChild(taskText, input);
                     };
                     input.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter') {
@@ -223,36 +278,45 @@
                         }
                     });
                     input.addEventListener('blur', saveChanges);
-                    taskItem.replaceChild(input, taskText);
+                    taskTextContainer.replaceChild(input, taskText);
                     input.focus();
                 });
                 statusContainer.appendChild(editButton);
+                
                 const statuses = [
-                    { name: 'Pendiente', colorClass: 'bg-red-500' },
-                    { name: 'En trámite', colorClass: 'bg-blue-500' },
-                    { name: 'Finalizada', colorClass: 'bg-green-500' }
+                    { name: 'Pendiente', colorClass: 'btn-pendiente' },
+                    { name: 'En trámite', colorClass: 'btn-tramite' },
+                    { name: 'Finalizada', colorClass: 'btn-finalizada' }
                 ];
+                
                 statuses.forEach(status => {
                     const button = document.createElement('button');
-                    button.className = `task-status-btn ${status.colorClass} text-white`;
+                    button.className = `task-status-btn ${status.colorClass} inactive`;
                     if (task.status === status.name) {
+                        button.classList.remove('inactive');
                         button.classList.add('active');
                     }
                     button.textContent = status.name;
                     button.addEventListener('click', () => {
                         tasksRef.child(taskId).update({ status: status.name });
                         const allStatusButtons = statusContainer.querySelectorAll('.task-status-btn');
-                        allStatusButtons.forEach(btn => btn.classList.remove('active'));
+                        allStatusButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            btn.classList.add('inactive');
+                        });
+                        button.classList.remove('inactive');
                         button.classList.add('active');
                     });
                     statusContainer.appendChild(button);
                 });
-                taskItem.appendChild(taskText);
+                
                 taskItem.appendChild(statusContainer);
                 taskList.appendChild(taskItem);
             });
         };
+        
         tasksRef.orderByChild('createdAt').on('value', renderTask);
+        
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const description = newTaskInput.value.trim();
@@ -269,6 +333,7 @@
                 }
             }
         });
+        
         mainMenuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
