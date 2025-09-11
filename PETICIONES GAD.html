@@ -182,28 +182,28 @@
                 </button>
             </form>
             <div id="task-list" class="flex flex-col gap-2">
-                </div>
+            </div>
             <button id="main-menu-btn"
                     class="mt-2 p-2.5 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-500 text-base lg:text-xl">
                 MENÚ PRINCIPAL
             </button>
         </div>
     </div>
- <footer class="mt-auto text-center py-6 bg-gray-200">
-    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+    <footer class="mt-auto text-center py-6 bg-gray-200">
+        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+        <p>&copy; GAD - Todos los derechos reservados</p>
+    </footer>
     <script>
         const firebaseConfig = {
-          apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
-          authDomain: "gad-alicante-f0d56.firebaseapp.com",
-          databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "gad-alicante-f0d56",
-          storageBucket: "gad-alicante-f0d56.firebasestorage.app",
-          messagingSenderId: "453863147861",
-          appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
+            apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
+            authDomain: "gad-alicante-f0d56.firebaseapp.com",
+            databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "gad-alicante-f0d56",
+            storageBucket: "gad-alicante-f0d56.firebasestorage.app",
+            messagingSenderId: "453863147861",
+            appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -219,15 +219,15 @@
                 const taskId = childSnapshot.key;
                 const task = childSnapshot.val();
                 const taskItem = document.createElement('div');
-                taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
+                taskItem.className = `task-item flex-col sm:flex-row items-start sm:items-center ${task.status.toLowerCase().replace(' ', '-')}`;
                 taskItem.setAttribute('data-id', taskId);
 
                 // Contenedor para el texto
                 const taskTextContainer = document.createElement('div');
-                taskTextContainer.className = 'task-text-container';
+                taskTextContainer.className = 'task-text-container flex-grow w-full md:w-auto';
 
                 const taskText = document.createElement('span');
-                taskText.className = 'task-text ml-2';
+                taskText.className = 'task-text ml-2 w-full break-words';
                 const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
 
@@ -253,7 +253,7 @@
                 taskItem.appendChild(taskTextContainer);
 
                 const statusContainer = document.createElement('div');
-                statusContainer.className = 'task-status-container';
+                statusContainer.className = 'task-status-container flex-shrink-0 mt-2 sm:mt-0';
 
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
