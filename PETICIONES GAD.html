@@ -75,6 +75,10 @@
                 width: 100%;
                 word-break: break-word;
             }
+            /* SOLUCIÓN: Asegura que el textarea se expanda en móviles */
+            .task-text-container textarea {
+                height: auto !important;
+            }
         }
         .task-item.pendiente .task-text {
             color: #ef4444;
