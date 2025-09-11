@@ -43,7 +43,7 @@
         }
         .task-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             padding: 0.75rem;
             background-color: #f9fafb;
@@ -51,6 +51,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             transition: all 0.2s ease-in-out;
             flex-direction: row;
+            gap: 0.5rem;
         }
         @media (max-width: 639px) {
             .task-item {
@@ -75,10 +76,6 @@
                 width: 100%;
                 word-break: break-word;
             }
-            /* SOLUCIÓN: Asegura que el textarea se expanda en móviles */
-            .task-text-container textarea {
-                height: auto !important;
-            }
         }
         .task-item.pendiente .task-text {
             color: #ef4444;
@@ -93,13 +90,21 @@
             font-weight: bold;
             text-decoration: line-through;
         }
+        .task-text-container {
+            flex: 1;
+            min-width: 0; /* Permite que el texto se ajuste */
+        }
         .task-text {
-            flex-grow: 1;
+            word-break: break-word; /* Ajusta texto largo en múltiples líneas */
+            overflow-wrap: break-word;
+            display: block;
+            width: 100%;
         }
         .task-status-container {
             display: flex;
-            align-items: stretch;
+            align-items: center;
             gap: 0.5rem;
+            flex-shrink: 0; /* Evita que se reduzca el contenedor de botones */
         }
         .task-status-btn, .edit-btn {
             padding: 0.25rem 0.5rem;
@@ -109,6 +114,7 @@
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.2s;
+            white-space: nowrap; /* Evita que el texto de botones se divida */
         }
         /* 🎨 BOTONES INACTIVOS - Colores muy claros */
         .task-status-btn.inactive {
@@ -159,10 +165,25 @@
             color: black;
             font-weight: bold;
         }
-        /* Contenedor para el texto de la tarea */
-        .task-text-container {
-            display: flex;
-            flex-grow: 1;
+        
+        /* Estilos para el textarea de edición */
+        .edit-textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        /* Ajustes para el modo edición en dispositivos móviles */
+        @media (max-width: 639px) {
+            .edit-textarea {
+                min-height: 80px;
+            }
         }
     </style>
 </head>
@@ -186,28 +207,28 @@
                 </button>
             </form>
             <div id="task-list" class="flex flex-col gap-2">
-            </div>
+                </div>
             <button id="main-menu-btn"
                     class="mt-2 p-2.5 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-500 text-base lg:text-xl">
                 MENÚ PRINCIPAL
             </button>
         </div>
     </div>
-    <footer class="mt-auto text-center py-6 bg-gray-200">
-        <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
-        <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
-        <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-        <p>&copy; GAD - Todos los derechos reservados</p>
-    </footer>
+ <footer class="mt-auto text-center py-6 bg-gray-200">
+    <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+    <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+    <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+    <p>&copy; GAD - Todos los derechos reservados</p>
+  </footer>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
-            authDomain: "gad-alicante-f0d56.firebaseapp.com",
-            databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "gad-alicante-f0d56",
-            storageBucket: "gad-alicante-f0d56.firebasestorage.app",
-            messagingSenderId: "453863147861",
-            appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
+          apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
+          authDomain: "gad-alicante-f0d56.firebaseapp.com",
+          databaseURL: "https://gad-alicante-f0d56-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gad-alicante-f0d56",
+          storageBucket: "gad-alicante-f0d56.firebasestorage.app",
+          messagingSenderId: "453863147861",
+          appId: "1:453863147861:web:50be7eb436bbee6ec4c7dc"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -223,15 +244,15 @@
                 const taskId = childSnapshot.key;
                 const task = childSnapshot.val();
                 const taskItem = document.createElement('div');
-                taskItem.className = `task-item flex-col sm:flex-row items-start sm:items-center ${task.status.toLowerCase().replace(' ', '-')}`;
+                taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
                 taskItem.setAttribute('data-id', taskId);
 
                 // Contenedor para el texto
                 const taskTextContainer = document.createElement('div');
-                taskTextContainer.className = 'task-text-container flex-grow w-full md:w-auto';
+                taskTextContainer.className = 'task-text-container';
 
                 const taskText = document.createElement('span');
-                taskText.className = 'task-text ml-2 w-full break-words';
+                taskText.className = 'task-text ml-2';
                 const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
 
@@ -257,7 +278,7 @@
                 taskItem.appendChild(taskTextContainer);
 
                 const statusContainer = document.createElement('div');
-                statusContainer.className = 'task-status-container flex-shrink-0 mt-2 sm:mt-0';
+                statusContainer.className = 'task-status-container';
 
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
@@ -267,21 +288,36 @@
                     const currentText = task.description;
                     const input = document.createElement('textarea');
                     input.value = currentText;
-                    input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full resize-y';
-                    input.rows = 2; // Inicia con al menos dos filas para que se vea como un área de texto
+                    input.className = 'edit-textarea';
+                    
+                    // Ajustar altura automáticamente
+                    input.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = (this.scrollHeight) + 'px';
+                    });
+                    
+                    // Inicializar con la altura correcta
+                    setTimeout(() => {
+                        input.style.height = 'auto';
+                        input.style.height = (input.scrollHeight) + 'px';
+                    }, 0);
+
                     const saveChanges = () => {
                         const newText = input.value.trim();
                         if (newText && newText !== currentText) {
                             tasksRef.child(taskId).update({ description: newText });
                         }
+                        taskText.textContent = `${formattedDate} - ${newText || currentText}`;
                         taskTextContainer.replaceChild(taskText, input);
                     };
+                    
                     input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) { // Permite Shift+Enter para nueva línea sin guardar
-                            e.preventDefault(); // Evita el salto de línea por defecto
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
                             saveChanges();
                         }
                     });
+                    
                     input.addEventListener('blur', saveChanges);
                     taskTextContainer.replaceChild(input, taskText);
                     input.focus();
