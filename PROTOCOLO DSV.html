@@ -11,8 +11,7 @@
         .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         .btn { padding: 10px 16px; border-radius: 5px; font-size: 14px; cursor: pointer; }
         .btn-primary { background-color: #3b82f6; color: white; }
-        .btn-secondary { background-color: #6b7280; color: white; }
-        .btn-back { background-color: #f59e0b; color: white; }
+        .btn-back { background-color: #90EE90; color: #333; }
         .result-box { margin-top: 20px; padding: 15px; border-radius: 5px; border: 1px solid; }
         .result-box.delito { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
         .result-box.infraccion { background-color: #ffeeba; border-color: #ffc720; color: #664d03; }
@@ -28,19 +27,12 @@
     </header>
 
     <h1 class="text-black text-center mt-6 text-xl font-bold px-4">
-        PROTOCOLO DSV
+        PROTOCOLO PERMISOS DSV
     </h1>
 
     <div class="w-11/12 max-w-md mx-auto mt-4 bg-white p-4 rounded-lg shadow-md container">
-        <p class="text-gray-700">Seleccione el supuesto para comenzar:</p>
-
-        <select id="main-select" onchange="startQuestions(this.value)" class="w-full p-2 border border-gray-300 rounded-lg mt-2">
-            <option value="">-- SELECCIONAR SUPUESTO --</option>
-            <option value="perdida-puntos">PÉRDIDA DE VIGENCIA POR PUNTOS</option>
-            <option value="suspension-judicial">SUSPENSIÓN POR RESOLUCIÓN JUDICIAL</option>
-            <option value="carencia">CARENCIA DE PERMISO</option>
-            <option value="psicofisicas">PÉRDIDA DE CONDICIONES PSICOFÍSICAS</option>
-        </select>
+<p class="text-gray-700 font-bold uppercase">SELECCIONE EL SUPUESTO PARA COMENZAR:</p>
+        <div id="supuestos-container" class="mt-4 flex flex-col gap-2"></div>
 
         <div id="question-container" class="mt-6"></div>
 
@@ -67,8 +59,9 @@
             "perdida-puntos": {
                 question: "¿CONDUCE DURANTE EL PERIODO DE PÉRDIDA DE VIGENCIA?",
                 options: {
-                    "SI, CONDUCE DENTRO DEL PERIODO": "conduce-durante",
+                    "SI": "conduce-durante",
                     "FINALIZADO SIN CURSO NI EXAMEN": "finalizado-no-curso-examen",
+                    "FINALIZADO CON CURSO SIN EXAMEN": "finalizado-no-examen",
                     "FINALIZADO CON CURSO Y EXAMEN": "finalizado-si-examen",
                     "NO TIENE CONOCIMIENTO EDICTAL": "no-conocimiento",
                     "EN RECURSO DE ALZADA": "incidencias-recurso",
@@ -127,7 +120,7 @@
 
             // SUSPENSIÓN JUDICIAL
             "dentro-condena-menor": { hecho: "Condena ≤ 2 años: dentro del periodo", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias + denuncia 1.1.5D RGCond. NO copia + Inmovilización.", tipo: "delito" },
-            "finalizado-condena-menor-no-curso": { hecho: "Condena ≤ 2 años: finalizado sin curso", resumen: "INFRACCIÓN LSV 73.2.5A (200€)", actuacion: "Denuncia. Se entrega copia. NO penal.", tipo: "infraccion" },
+            "finalizado-condena-menor-no-curso": { hecho: "Condena ≤ 2 años: finalizado sin curso", resumen: "INFRACCIÓN RGCOND 1.1.5D (200€)", actuacion: "Denuncia. Se entrega copia. NO penal.", tipo: "infraccion" },
             "finalizado-condena-menor-si-curso": { hecho: "Condena ≤ 2 años: finalizado con curso", resumen: "OK - CONTINÚA VIAJE", actuacion: "Situación regularizada.", tipo: "ok" },
             "dentro-condena-mayor": { hecho: "Condena > 2 años: dentro del periodo", resumen: "DELITO LSV art.384 CP - ATESTADO", actuacion: "Diligencias + denuncia 1.1.5A RGCond. NO copia + Inmovilización.", tipo: "delito" },
             "finalizado-condena-mayor-no-curso-examen": { hecho: "Condena > 2 años: finalizado sin curso ni examen", resumen: "DELITO QUEBRANTAMIENTO art.468 CP", actuacion: "Diligencias por quebrantamiento + denuncia 1.1.5A RGCond. NO copia + Inmovilización.", tipo: "delito" },
@@ -144,6 +137,19 @@
 
         // --- Lógica ---
         let history = [];
+        let currentSection = null;
+
+        function initSupuestos() {
+            const container = document.getElementById("supuestos-container");
+            container.innerHTML = "";
+            for (let key in decisionTrees) {
+                const btn = document.createElement("button");
+                btn.className = "btn btn-primary w-full";
+                btn.textContent = key.replace(/-/g, " ").toUpperCase();
+                btn.onclick = () => startQuestions(key);
+                container.appendChild(btn);
+            }
+        }
 
         function startQuestions(sectionKey) {
             const container = document.getElementById("question-container");
@@ -151,6 +157,7 @@
             container.innerHTML = "";
             resultDiv.classList.add("hidden");
             history = [];
+            currentSection = sectionKey;
 
             if (!sectionKey) return;
             const tree = decisionTrees[sectionKey];
@@ -170,7 +177,6 @@
                 container.appendChild(btn);
             }
 
-            // El botón de volver atrás debe aparecer SIEMPRE
             const backBtn = document.createElement("button");
             backBtn.className = "btn btn-back w-full mt-4";
             backBtn.textContent = "VOLVER ATRÁS";
@@ -188,13 +194,20 @@
         }
 
         function goBack() {
+            const resultDiv = document.getElementById("resultado");
+            if (!resultDiv.classList.contains("hidden")) {
+                resultDiv.classList.add("hidden");
+                history = [];
+                showQuestion(decisionTrees[currentSection]);
+                return;
+            }
+
             if (history.length > 1) {
                 history.pop();
                 showQuestion(history[history.length - 1]);
             } else {
-                // Si está en la raíz, limpia todo
                 document.getElementById("question-container").innerHTML = "";
-                document.getElementById("main-select").value = "";
+                currentSection = null;
             }
         }
 
@@ -220,6 +233,8 @@
             backBtn.onclick = goBack;
             container.appendChild(backBtn);
         }
+
+        document.addEventListener("DOMContentLoaded", initSupuestos);
     </script>
 </body>
 </html>
