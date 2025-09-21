@@ -471,12 +471,21 @@
                 }
 
                 let imageHtml = 'No hay';
-                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(item.documentoUrl);
+                // Utiliza una expresión regular más robusta para detectar URLs de imagen
+                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.documentoUrl);
+                
                 if (item.documentoUrl) {
-                    if (isImage) {
+                    // Check if the URL is from OneDrive and needs a specific format
+                    if (item.documentoUrl.includes('1drv.ms/i/')) {
+                        // For OneDrive, extract the path and construct the direct link
+                        // The format from the example is https://1drv.ms/i/c/8755.../IQRiRxo...
+                        // We can append a query parameter for a thumbnail
+                        const directUrl = `${item.documentoUrl.split('?')[0]}?width=150&height=100`; // Use a smaller size for the thumbnail
+                        imageHtml = `<a href="${item.documentoUrl}" target="_blank"><img src="${directUrl}" alt="Doc" class="thumbnail"></a>`;
+                    } else if (isImage) {
                         imageHtml = `<a href="${item.documentoUrl}" target="_blank"><img src="${item.documentoUrl}" alt="Doc" class="thumbnail"></a>`;
                     } else {
-                        imageHtml = `<a href="${item.documentoUrl}" target="_blank" class="doc-link"><i class="fas fa-eye mr-2"></i>Ver Imagen</a>`;
+                        imageHtml = `<a href="${item.documentoUrl}" target="_blank" class="doc-link"><i class="fas fa-eye mr-2"></i>Ver Documento</a>`;
                     }
                 }
 
