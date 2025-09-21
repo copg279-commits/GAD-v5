@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menú de Vehículos GAD</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Estilos generales para el cuerpo */
         body {
@@ -79,7 +83,9 @@
 <h1 class="text-black text-center mt-2 text-xl font-bold px-4"> Menú de Herramientas GAD
 </h1>
 
-<div class="main-content-wrapper px-2 sm:px-4 lg:px-16"> <div class="grid grid-cols-2 gap-2 p-2 mt-1 grid-container"> <button onclick="window.location.href='PETICIONES GAD.html'"
+<div class="main-content-wrapper px-2 sm:px-4 lg:px-16">
+    <div class="grid grid-cols-2 gap-2 p-2 mt-1 grid-container">
+        <button onclick="window.location.href='PETICIONES GAD.html'"
                 class="bg-blue-500 text-white menu-button">
             PETICIONES GAD
         </button>
@@ -88,7 +94,17 @@
             ORDENES INTERNAS
         </button>
         <button onclick="window.location.href='EN CONSTRUCCIÓN.html'"
-                class="bg-blue-500 text-white menu-button col-span-2"> EN CONSTRUCCIÓN
+                class="bg-blue-500 text-white menu-button">
+            EN CONSTRUCCIÓN
+        </button>
+        <button onclick="window.location.href='EN CONSTRUCCIÓN.html'"
+                class="bg-blue-500 text-white menu-button">
+            EN CONSTRUCCIÓN
+        </button>
+
+        <button onclick="window.location.href='JUDICIALIZADOS.html'"
+                class="col-span-2 mt-2 p-2.5 bg-red-500 text-white font-bold rounded-lg shadow-md transition hover:bg-red-600 text-base lg:text-xl">
+            <i class="fas fa-gavel mr-2"></i>DOCUMENTOS JUDICIALIZADOS
         </button>
 
         <button onclick="window.location.href='index.html'"
@@ -98,12 +114,12 @@
     </div>
 </div>
 
- <footer class="mt-auto text-center py-6 bg-gray-200">
+<footer class="mt-auto text-center py-6 bg-gray-200">
     <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
     <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
     <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
     <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+</footer>
 
 </body>
 </html>
