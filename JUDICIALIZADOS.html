@@ -66,7 +66,7 @@
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       width: 90%;
-      max-width: 800px;
+      max-width: 500px;
       transform: scale(0.95);
       transition: transform 0.3s ease-out;
       color: var(--text-main);
@@ -78,7 +78,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.5rem;
+      padding: 0.5rem 1rem; /* Reducido */
       border-bottom: 1px solid var(--border-color);
     }
     .modal-header h2 { margin: 0; }
@@ -89,46 +89,52 @@
       color: #aaa;
       cursor: pointer;
     }
-    .modal-body { padding: 1.5rem; }
+    .modal-body { 
+      padding: 1rem; /* Reducido */
+    }
     .form-fields {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 15px;
+      gap: 8px; /* Reducido */
     }
     .field label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 3px; /* Reducido */
       font-weight: 600;
+      font-size: 0.85rem; /* Reducido */
     }
     .field input, .field select {
       width: 100%;
-      padding: 10px;
+      padding: 6px; /* Reducido */
       border-radius: 5px;
       border: 1px solid #ddd;
+      font-size: 0.85rem; /* Reducido */
     }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      padding: 1rem 1.5rem;
+      gap: 8px; /* Reducido */
+      padding: 0.75rem 1rem; /* Reducido */
       border-top: 1px solid var(--border-color);
     }
     .btn-primary {
       background-color: var(--primary-blue);
       color: white;
-      padding: 10px 20px;
+      padding: 8px 16px; /* Reducido */
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
     .btn-primary:hover { background-color: var(--primary-blue-dark); }
     .btn-ghost {
       background-color: transparent;
       color: var(--primary-blue);
-      padding: 10px 20px;
+      padding: 8px 16px; /* Reducido */
       border: 1px solid var(--primary-blue);
       border-radius: 5px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
     .hidden { display: none; }
     .main-content {
@@ -171,7 +177,7 @@
       vertical-align: middle;
     }
     .results-table td {
-        color: var(--button-delete); /* Color rojo para los datos */
+        color: var(--text-main);
     }
     .results-table th {
       background-color: #f8fafc;
@@ -196,17 +202,15 @@
       justify-content: center;
       gap: 0.5rem;
     }
-    /* Estilo específico para los botones de editar y eliminar, sin ancho fijo */
     .results-table .edit-btn, .results-table .delete-btn {
-        padding: 0.5rem; /* Padding más pequeño para hacerlos cuadrados */
-        width: 40px; /* Ancho fijo para que no cambie */
-        height: 40px; /* Alto fijo para que no cambie */
+        padding: 0.5rem;
+        width: 40px;
+        height: 40px;
     }
     .results-table .edit-btn { background-color: var(--button-edit); color: white; }
     .results-table .edit-btn:hover { background-color: var(--button-edit-dark); }
     .results-table .delete-btn { background-color: var(--button-delete); color: white; }
     .results-table .delete-btn:hover { background-color: var(--button-delete-dark); }
-    /* Ancho fijo para el botón de Archivar/Desarchivar */
     .results-table .archive-btn {
         width: 110px;
         background-color: var(--button-archive);
@@ -230,21 +234,56 @@
       border-radius: 4px;
       border: 1px solid #ddd;
     }
-    /* Estilo para fila archivada: texto en cursiva y color verde */
     .archived-row td {
-      text-decoration: none; /* Asegura que no haya tachado */
-      color: var(--button-edit); /* Color verde */
-      font-style: italic; /* Cursiva */
+      text-decoration: none;
+      color: var(--button-edit);
+      font-style: italic;
     }
-    /* Estilo para el botón de archivar/desarchivar cuando la fila está archivada */
     .archived-row .archive-btn {
-      background-color: var(--button-edit); /* Color verde del botón */
+      background-color: var(--button-edit);
       color: white;
     }
     .archived-row .archive-btn:hover {
       background-color: var(--button-edit-dark);
     }
-    /* Estilos para vista de móvil */
+    /* Estilos para los colores condicionales del resultado */
+    .condena {
+        font-weight: bold;
+        color: #16a34a; /* Verde */
+    }
+    .en-tramite {
+        font-weight: bold;
+        color: #dc2626; /* Rojo */
+    }
+    .pasa-a-ordinario {
+        font-weight: bold;
+        color: #2563eb; /* Azul */
+    }
+    .absolucion {
+        font-weight: bold;
+        color: #8B008B; /* Violeta oscuro */
+    }
+    /* Estilos para las filas según la existencia de sentencia */
+    .sentencia-presente td {
+      color: #16a34a; /* Verde */
+    }
+    .sentencia-ausente td {
+      color: #dc2626; /* Rojo */
+    }
+    /* Excepción para la columna 'Resultado' */
+    .sentencia-presente td[data-label="Resultado"],
+    .sentencia-ausente td[data-label="Resultado"] {
+      color: inherit;
+    }
+    /* Estilo para el link de sentencia */
+    .sentencia-link {
+        color: inherit;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    .sentencia-link:hover {
+        text-decoration: underline;
+    }
     @media (max-width: 768px) {
       .results-table thead { display: none; }
       .results-table, .results-table tbody, .results-table tr, .results-table td {
@@ -314,6 +353,7 @@
               <th>J. Rápido</th>
               <th>Juzgado</th>
               <th>Resultado</th>
+              <th>Sentencia</th>
               <th>Imagen</th>
               <th>Acciones</th>
             </tr>
@@ -387,7 +427,12 @@
                 <option value="Condena">Condena</option>
                 <option value="Absolución">Absolución</option>
                 <option value="Pasa a Ordinario">Pasa a Ordinario</option>
+                <option value="En Trámite">En Trámite</option>
               </select>
+            </div>
+            <div class="field">
+              <label for="sentenciaUrl">Enlace a la Sentencia (URL)</label>
+              <input id="sentenciaUrl" name="sentenciaUrl" type="text" placeholder="Pega aquí la URL de la sentencia" />
             </div>
             <div class="field">
               <label for="documentoUrl">Enlace al Documento (URL de Google Drive o OneDrive)</label>
@@ -436,14 +481,16 @@
       const juzgadoSelect = document.getElementById('juzgado');
 
       let savedPaises = [];
+      
       const juzgadoOptions = ["Se desconoce"];
       for (let i = 1; i <= 15; i++) {
         juzgadoOptions.push(`Instrucción ${i}`);
+      }
+      for (let i = 1; i <= 15; i++) {
         juzgadoOptions.push(`Penal ${i}`);
       }
       juzgadoOptions.forEach(opt => juzgadoSelect.innerHTML += `<option value="${opt}">${opt}</option>`);
 
-      // Cargar países guardados
       savedPaisesRef.on('value', (snapshot) => {
           savedPaises = snapshot.val() || [];
           paisesList.innerHTML = savedPaises.map(pais => `<option value="${pais}"></option>`).join('');
@@ -466,27 +513,53 @@
                 const row = document.createElement('tr');
                 row.dataset.key = item.key;
                 
+                // Aplicar el color de la fila basado en la existencia de sentencia
+                if (item.sentenciaUrl) {
+                    row.classList.add('sentencia-presente');
+                } else {
+                    row.classList.add('sentencia-ausente');
+                }
+
                 if (item.archived) {
                     row.classList.add('archived-row');
                 }
 
                 let imageHtml = 'No hay';
-                // Utiliza una expresión regular más robusta para detectar URLs de imagen
                 const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.documentoUrl);
                 
                 if (item.documentoUrl) {
-                    // Check if the URL is from OneDrive and needs a specific format
                     if (item.documentoUrl.includes('1drv.ms/i/')) {
-                        // For OneDrive, extract the path and construct the direct link
-                        // The format from the example is https://1drv.ms/i/c/8755.../IQRiRxo...
-                        // We can append a query parameter for a thumbnail
-                        const directUrl = `${item.documentoUrl.split('?')[0]}?width=150&height=100`; // Use a smaller size for the thumbnail
+                        const directUrl = `${item.documentoUrl.split('?')[0]}?width=150&height=100`;
                         imageHtml = `<a href="${item.documentoUrl}" target="_blank"><img src="${directUrl}" alt="Doc" class="thumbnail"></a>`;
                     } else if (isImage) {
                         imageHtml = `<a href="${item.documentoUrl}" target="_blank"><img src="${item.documentoUrl}" alt="Doc" class="thumbnail"></a>`;
                     } else {
                         imageHtml = `<a href="${item.documentoUrl}" target="_blank" class="doc-link"><i class="fas fa-eye mr-2"></i>Ver Documento</a>`;
                     }
+                }
+
+                let sentenciaHtml = 'No';
+                if (item.sentenciaUrl) {
+                    sentenciaHtml = `<a href="${item.sentenciaUrl}" target="_blank" class="sentencia-link">Ver</a>`;
+                }
+
+                let resultadoHtml;
+                switch (item.resultado) {
+                    case 'Condena':
+                        resultadoHtml = `<span class="condena">Condena</span>`;
+                        break;
+                    case 'En Trámite':
+                        resultadoHtml = `<span class="en-tramite">En Trámite</span>`;
+                        break;
+                    case 'Pasa a Ordinario':
+                        resultadoHtml = `<span class="pasa-a-ordinario">Pasa a Ordinario</span>`;
+                        break;
+                    case 'Absolución':
+                        resultadoHtml = `<span class="absolucion">Absolución</span>`;
+                        break;
+                    default:
+                        resultadoHtml = `<span>${item.resultado}</span>`;
+                        break;
                 }
 
                 row.innerHTML = `
@@ -496,7 +569,8 @@
                     <td data-label="Atestado">${item.atestadoNumero}</td>
                     <td data-label="Juicio Rápido">${item.juicioRapido}</td>
                     <td data-label="Juzgado">${item.juzgado}</td>
-                    <td data-label="Resultado">${item.resultado}</td>
+                    <td data-label="Resultado">${resultadoHtml}</td>
+                    <td data-label="Sentencia">${sentenciaHtml}</td>
                     <td data-label="Imagen">
                       ${imageHtml}
                     </td>
@@ -540,6 +614,7 @@
               juzgado: document.getElementById('juzgado').value,
               resultado: document.getElementById('resultado').value,
               documentoUrl: document.getElementById('documentoUrl').value || null,
+              sentenciaUrl: document.getElementById('sentenciaUrl').value || null,
             };
 
             if (key) {
@@ -583,6 +658,7 @@
           document.getElementById('juzgado').value = itemToEdit.juzgado;
           document.getElementById('resultado').value = itemToEdit.resultado;
           document.getElementById('documentoUrl').value = itemToEdit.documentoUrl || '';
+          document.getElementById('sentenciaUrl').value = itemToEdit.sentenciaUrl || '';
           recordKeyInput.value = key;
           modalTitle.textContent = 'Editar Documento';
           documentModal.classList.add('open');
