@@ -78,7 +78,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 1rem; /* Reducido */
+      padding: 0.5rem 1rem;
       border-bottom: 1px solid var(--border-color);
     }
     .modal-header h2 { margin: 0; }
@@ -89,38 +89,38 @@
       color: #aaa;
       cursor: pointer;
     }
-    .modal-body { 
-      padding: 1rem; /* Reducido */
+    .modal-body {
+      padding: 1rem;
     }
     .form-fields {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 8px; /* Reducido */
+      gap: 8px;
     }
     .field label {
       display: block;
-      margin-bottom: 3px; /* Reducido */
+      margin-bottom: 3px;
       font-weight: 600;
-      font-size: 0.85rem; /* Reducido */
+      font-size: 0.85rem;
     }
     .field input, .field select {
       width: 100%;
-      padding: 6px; /* Reducido */
+      padding: 6px;
       border-radius: 5px;
       border: 1px solid #ddd;
-      font-size: 0.85rem; /* Reducido */
+      font-size: 0.85rem;
     }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px; /* Reducido */
-      padding: 0.75rem 1rem; /* Reducido */
+      gap: 8px;
+      padding: 0.75rem 1rem;
       border-top: 1px solid var(--border-color);
     }
     .btn-primary {
       background-color: var(--primary-blue);
       color: white;
-      padding: 8px 16px; /* Reducido */
+      padding: 8px 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -130,7 +130,7 @@
     .btn-ghost {
       background-color: transparent;
       color: var(--primary-blue);
-      padding: 8px 16px; /* Reducido */
+      padding: 8px 16px;
       border: 1px solid var(--primary-blue);
       border-radius: 5px;
       cursor: pointer;
@@ -363,6 +363,9 @@
         </table>
       </div>
     </div>
+    
+    <div class="mt-8 flex justify-center">
+<button onclick="window.location.href='index.html'" class="max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">MENÚ PRINCIPAL</button>    </div>
   </main>
 
   <footer class="mt-auto text-center py-6 bg-gray-200">
@@ -474,6 +477,7 @@
       const documentForm = document.getElementById('documentForm');
       const modalTitle = document.getElementById('modalTitle');
       const recordKeyInput = document.getElementById('recordKey');
+      const modalContent = document.querySelector('.modal');
 
       const resultsTableBody = document.getElementById('resultsTableBody');
       const resultsContainer = document.getElementById('resultsContainer');
@@ -677,6 +681,11 @@
         documentModal.classList.remove('open');
         documentForm.reset();
       };
+      
+      modalContent.addEventListener('click', (e) => {
+          e.stopPropagation();
+      });
+
       closeModalBtn.addEventListener('click', closeOrCancelModal);
       cancelModalBtn.addEventListener('click', closeOrCancelModal);
       documentModal.addEventListener('click', (e) => {
