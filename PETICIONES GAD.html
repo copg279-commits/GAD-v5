@@ -43,7 +43,7 @@
         }
         .task-item {
             display: flex;
-            align-items: flex-start; /* Modificado: Alinea los elementos en la parte superior */
+            align-items: flex-start;
             justify-content: space-between;
             padding: 0.75rem;
             background-color: #f9fafb;
@@ -67,7 +67,6 @@
                 flex: 1 1 auto;
                 min-width: 0;
             }
-            /* Hace que el texto ocupe todo el ancho en móviles */
             .task-text-container {
                 width: 100%;
             }
@@ -96,7 +95,7 @@
             display: flex;
             align-items: stretch;
             gap: 0.5rem;
-            flex-shrink: 0; /* Añadido: Evita que los botones se encojan */
+            flex-shrink: 0;
         }
         .task-status-btn, .edit-btn {
             padding: 0.25rem 0.5rem;
@@ -113,15 +112,15 @@
             filter: saturate(40%);
         }
         .btn-pendiente.inactive {
-            background-color: #fecaca; /* Rojo muy claro */
+            background-color: #fecaca;
             color: #b91c1c;
         }
         .btn-tramite.inactive {
-            background-color: #bfdbfe; /* Azul muy claro */
+            background-color: #bfdbfe;
             color: #1d4ed8;
         }
         .btn-finalizada.inactive {
-            background-color: #bbf7d0; /* Verde muy claro */
+            background-color: #bbf7d0;
             color: #15803d;
         }
 
@@ -134,15 +133,15 @@
             transform: scale(1.05);
         }
         .btn-pendiente.active {
-            background-color: #ef4444; /* Rojo vibrante */
+            background-color: #ef4444;
             color: white;
         }
         .btn-tramite.active {
-            background-color: #3b82f6; /* Azul vibrante */
+            background-color: #3b82f6;
             color: white;
         }
         .btn-finalizada.active {
-            background-color: #22c55e; /* Verde vibrante */
+            background-color: #22c55e;
             color: white;
         }
 
@@ -160,12 +159,12 @@
         .task-text-container {
             display: flex;
             flex-grow: 1;
-            flex-shrink: 1; /* Añadido: Permite que este contenedor se encoja si es necesario */
+            flex-shrink: 1;
         }
 
         .task-text {
-            word-break: break-word; /* Clave para el salto de línea */
-            width: 100%; /* Asegura que ocupe todo el ancho disponible */
+            word-break: break-word;
+            width: 100%;
         }
     </style>
 </head>
@@ -220,24 +219,58 @@
         const newTaskInput = document.getElementById('new-task-input');
         const mainMenuBtn = document.getElementById('main-menu-btn');
 
+        // Crea los botones de filtro
+        const showAllBtn = document.createElement('button');
+        showAllBtn.id = 'show-all-btn';
+        showAllBtn.textContent = 'Mostrar todas las tareas';
+        showAllBtn.className = 'mt-2 p-2.5 bg-gray-400 text-white font-bold rounded-lg shadow-md transition hover:bg-gray-500 text-base lg:text-xl';
+        
+        const hideCompletedBtn = document.createElement('button');
+        hideCompletedBtn.id = 'hide-completed-btn';
+        hideCompletedBtn.textContent = 'Ocultar tareas finalizadas';
+        hideCompletedBtn.className = 'mt-2 p-2.5 bg-green-500 text-white font-bold rounded-lg shadow-md transition hover:bg-green-600 text-base lg:text-xl';
+        
+        // Inserta los botones de filtro en el grid-container, antes del botón de menú
+        const gridContainer = document.querySelector('.grid-container');
+        gridContainer.insertBefore(showAllBtn, mainMenuBtn);
+        gridContainer.insertBefore(hideCompletedBtn, mainMenuBtn);
+
+        let currentFilter = 'show-all';
+        
         const renderTask = (snapshot) => {
             taskList.innerHTML = '';
+            const tasks = [];
             snapshot.forEach(childSnapshot => {
-                const taskId = childSnapshot.key;
-                const task = childSnapshot.val();
+                tasks.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+
+            // Ordena las tareas por fecha de creación de forma descendente (más reciente primero)
+            tasks.sort((a, b) => b.createdAt - a.createdAt);
+
+            const filteredTasks = tasks.filter(task => {
+                if (currentFilter === 'hide-completed') {
+                    return task.status !== 'Finalizada';
+                }
+                return true;
+            });
+
+            filteredTasks.forEach(task => {
                 const taskItem = document.createElement('div');
                 taskItem.className = `task-item ${task.status.toLowerCase().replace(' ', '-')}`;
-                taskItem.setAttribute('data-id', taskId);
-
+                taskItem.setAttribute('data-id', task.id);
+                
                 // Contenedor para el texto
                 const taskTextContainer = document.createElement('div');
                 taskTextContainer.className = 'task-text-container';
-
+                
                 const taskText = document.createElement('span');
                 taskText.className = 'task-text ml-2';
                 const formattedDate = new Date(task.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 taskText.textContent = `${formattedDate} - ${task.description}`;
-
+                
                 switch (task.status) {
                     case 'Pendiente':
                         taskText.style.color = '#ef4444';
@@ -255,13 +288,13 @@
                         taskText.style.textDecoration = 'line-through';
                         break;
                 }
-
+                
                 taskTextContainer.appendChild(taskText);
                 taskItem.appendChild(taskTextContainer);
-
+                
                 const statusContainer = document.createElement('div');
                 statusContainer.className = 'task-status-container';
-
+                
                 const editButton = document.createElement('button');
                 editButton.className = 'edit-btn';
                 editButton.textContent = '✏️';
@@ -271,32 +304,53 @@
                     const input = document.createElement('textarea');
                     input.value = currentText;
                     input.className = 'flex-grow p-1 border border-gray-400 rounded-md w-full resize-y';
-                    input.rows = 2; // Inicia con al menos dos filas para que se vea como un área de texto
+                    input.rows = 2;
+                    
                     const saveChanges = () => {
                         const newText = input.value.trim();
                         if (newText && newText !== currentText) {
-                            tasksRef.child(taskId).update({ description: newText });
+                            tasksRef.child(task.id).update({ description: newText });
                         }
                         taskTextContainer.replaceChild(taskText, input);
                     };
+                    
                     input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) { // Permite Shift+Enter para nueva línea sin guardar
-                            e.preventDefault(); // Evita el salto de línea por defecto
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
                             saveChanges();
                         }
                     });
+                    
                     input.addEventListener('blur', saveChanges);
                     taskTextContainer.replaceChild(input, taskText);
                     input.focus();
                 });
                 statusContainer.appendChild(editButton);
 
+                // Botón de eliminar
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'p-2.5 bg-red-500 text-white font-bold rounded-lg shadow-md transition hover:bg-red-600';
+                deleteButton.textContent = '🗑️';
+                deleteButton.title = 'Eliminar tarea';
+                deleteButton.addEventListener('click', () => {
+                    if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+                        tasksRef.child(task.id).remove()
+                            .then(() => {
+                                console.log("Tarea eliminada correctamente.");
+                            })
+                            .catch((error) => {
+                                console.error("Error al eliminar la tarea: ", error);
+                            });
+                    }
+                });
+                statusContainer.appendChild(deleteButton);
+                
                 const statuses = [
                     { name: 'Pendiente', colorClass: 'btn-pendiente' },
                     { name: 'En trámite', colorClass: 'btn-tramite' },
                     { name: 'Finalizada', colorClass: 'btn-finalizada' }
                 ];
-
+                
                 statuses.forEach(status => {
                     const button = document.createElement('button');
                     button.className = `task-status-btn ${status.colorClass} inactive`;
@@ -306,7 +360,7 @@
                     }
                     button.textContent = status.name;
                     button.addEventListener('click', () => {
-                        tasksRef.child(taskId).update({ status: status.name });
+                        tasksRef.child(task.id).update({ status: status.name });
                         const allStatusButtons = statusContainer.querySelectorAll('.task-status-btn');
                         allStatusButtons.forEach(btn => {
                             btn.classList.remove('active');
@@ -317,13 +371,14 @@
                     });
                     statusContainer.appendChild(button);
                 });
-
+                
                 taskItem.appendChild(statusContainer);
                 taskList.appendChild(taskItem);
             });
         };
 
-        tasksRef.orderByChild('createdAt').on('value', renderTask);
+        // Escucha los cambios en Firebase y re-renderiza la lista
+        tasksRef.on('value', renderTask);
 
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -342,6 +397,17 @@
             }
         });
 
+        // Event listeners para los botones de filtrado
+        showAllBtn.addEventListener('click', () => {
+            currentFilter = 'show-all';
+            tasksRef.once('value', renderTask);
+        });
+        
+        hideCompletedBtn.addEventListener('click', () => {
+            currentFilter = 'hide-completed';
+            tasksRef.once('value', renderTask);
+        });
+        
         mainMenuBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
