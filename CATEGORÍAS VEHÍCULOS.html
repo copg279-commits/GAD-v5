@@ -5,6 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GAD - Clasificación de Vehículos</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Estilos para el modo móvil (sin tabla) */
+    @media (max-width: 767px) {
+      .responsive-table .responsive-row {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+      }
+      .responsive-table .responsive-cell {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .responsive-table .responsive-cell:last-child {
+        border-bottom: none;
+      }
+      .responsive-table .responsive-cell::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #1f2937; /* Gray 800 */
+      }
+      .responsive-table th, .responsive-table thead {
+        display: none;
+      }
+      .responsive-table td {
+        display: block;
+        padding: 0;
+      }
+      .responsive-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        margin-right: 0.5rem;
+      }
+    }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
 
@@ -62,7 +101,6 @@
 
   <script>
     const vehicleData = [
-      // Categorías de la L (motos, triciclos, etc.)
       { category: "L1e", commonName: "Ciclomotor", description: "Vehículos de dos ruedas (ciclomotores) con una velocidad máxima de 45 km/h." },
       { category: "L2e", commonName: "Ciclomotor de 3 ruedas", description: "Vehículos de tres ruedas (ciclomotores) con una velocidad máxima de 45 km/h." },
       { category: "L3eA1", commonName: "Motocicleta", description: "Motocicletas de dos ruedas con una potencia inferior a 11 kW y una relación potencia/peso inferior a 0.1 kW/kg." },
@@ -75,23 +113,19 @@
       { category: "L6e", commonName: "Cuadriciclo ligero", description: "Cuadriciclos ligeros, masa en vacío inferior a 350 kg, velocidad máx. 45 km/h." },
       { category: "L7e", commonName: "Cuadriciclo pesado", description: "Cuadriciclos pesados, masa en vacío inferior a 450 kg (pasajeros) o 600 kg (carga)." },
 
-      // Categorías de la M (transporte de personas)
       { category: "M1", commonName: "Turismo", description: "Vehículos diseñados y fabricados para el transporte de pasajeros, que no tengan más de 8 asientos además del asiento del conductor." },
       { category: "M2", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima no superior a 5 toneladas." },
       { category: "M3", commonName: "Autobús", description: "Vehículos para transporte de pasajeros, con más de 8 asientos y una masa máxima superior a 5 toneladas." },
 
-      // Categorías de la N (transporte de mercancías)
       { category: "N1", commonName: "Furgoneta o Camioneta", description: "Vehículos para transporte de mercancías con una masa máxima no superior a 3.5 toneladas." },
       { category: "N2", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 3.5 toneladas pero no superior a 12 toneladas." },
       { category: "N3", commonName: "Camión", description: "Vehículos para transporte de mercancías con una masa máxima superior a 12 toneladas." },
 
-      // Categorías de la O (remolques)
       { category: "O1", commonName: "Remolque ligero", description: "Remolques con una masa máxima no superior a 0.75 toneladas." },
       { category: "O2", commonName: "Remolque medio", description: "Remolques con una masa máxima superior a 0.75 toneladas pero no superior a 3.5 toneladas." },
       { category: "O3", commonName: "Remolque pesado", description: "Remolques con una masa máxima superior a 3.5 toneladas pero no superior a 10 toneladas." },
       { category: "O4", commonName: "Remolque muy pesado", description: "Remolques con una masa máxima superior a 10 toneladas." },
 
-      // Categorías T y R (vehículos agrícolas)
       { category: "T", commonName: "Tractor", description: "Tractores de ruedas (agrícolas y forestales)." },
       { category: "R1", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica inferior a 1,5 toneladas." },
       { category: "R2", commonName: "Remolque agrícola", description: "Remolques agrícolas de masa máxima técnica superior a 1,5 toneladas e inferior a 3,5 toneladas." },
@@ -119,8 +153,8 @@
       }
       
       let tableHtml = `
-        <div class="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
-          <table class="min-w-full text-sm text-left text-gray-700">
+        <div class="responsive-table">
+          <table class="w-full text-sm text-left text-gray-700 hidden md:table">
             <thead class="bg-blue-600 text-white uppercase tracking-wider">
               <tr>
                 <th scope="col" class="px-6 py-3 font-semibold">Categoría</th>
@@ -141,10 +175,29 @@
         `;
       });
       tableHtml += `</tbody></table></div>`;
+
+      // Mobile view
+      tableHtml += `<div class="md:hidden">`;
+      data.forEach((item) => {
+        tableHtml += `
+          <div class="responsive-row">
+            <div class="responsive-cell" data-label="Categoría">
+              <span class="font-bold text-gray-900">${item.category}</span>
+            </div>
+            <div class="responsive-cell" data-label="Nombre Común">
+              <span>${item.commonName}</span>
+            </div>
+            <div class="responsive-cell" data-label="Descripción Completa">
+              <span>${item.description}</span>
+            </div>
+          </div>
+        `;
+      });
+      tableHtml += `</div>`;
+
       resultsContainer.innerHTML = tableHtml;
     }
     
-    // Función para normalizar texto (quitar acentos y poner en minúsculas)
     function normalizeText(text) {
         return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
