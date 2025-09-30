@@ -109,12 +109,8 @@
     </div>
   </div>
 
-  <div class="mt-8 flex justify-center">
-    <button onclick="window.location.href='index.html'"
-            class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
-        MENÚ PRINCIPAL
-    </button>
-  </div>
+  <div class="mt-8 flex flex-col items-center gap-4">
+    </div>
 
  <footer class="mt-auto text-center py-6 bg-gray-200">
     <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
@@ -124,7 +120,7 @@
   </footer>
 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCbrIC_qmnXN0YFTVjNGR-j_Zpq_6V_glA",
@@ -137,33 +133,33 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const licenciasItaliaRef = db.ref('licencias_italia');
+    const db = firebase.firestore();
+    const licenciasNuevasRef = db.collection('licencias_italia_firestore');
 
     let datosCompletos = [];
     
     document.addEventListener('DOMContentLoaded', () => {
-      cargarDatosDesdeFirebase();
+      cargarDatosDesdeFirestore();
     });
 
-    function cargarDatosDesdeFirebase() {
-      licenciasItaliaRef.once('value')
+    function cargarDatosDesdeFirestore() {
+      licenciasNuevasRef.get()
         .then(snapshot => {
           datosCompletos = [];
-          snapshot.forEach(childSnapshot => {
-            const nuevoDato = childSnapshot.val();
+          snapshot.forEach(doc => {
+            const nuevoDato = doc.data();
             datosCompletos.push({
-              numero: childSnapshot.key,
+              numero: nuevoDato.numero,
               fecha: nuevoDato.fecha,
-              key: childSnapshot.key
+              key: doc.id
             });
           });
-          datosCompletos.sort((a, b) => alphanumericToNumber(a.numero) - alphanumericToNumber(b.numero));
-          console.log("Datos de Firebase cargados y combinados.");
+          datosCompletos.sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+          console.log("Datos de Firestore cargados y combinados.");
           renderizarTablaCpi();
         })
         .catch(error => {
-          console.error("Error al cargar datos de Firebase:", error);
+          console.error("Error al cargar datos de Firestore:", error);
         });
     }
 
@@ -216,9 +212,9 @@
         const fechaFormateada = `${day}/${month}/${year}`;
         const fechaNueva = new Date(`${year}-${month}-${day}`);
 
-        const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => alphanumericToNumber(a.numero) - alphanumericToNumber(b.numero));
-        const antes = datosOrdenadosPorNumero.filter(d => alphanumericToNumber(d.numero) <= alphanumericToNumber(nuevoNumero)).pop();
-        const despues = datosOrdenadosPorNumero.find(d => alphanumericToNumber(d.numero) > alphanumericToNumber(nuevoNumero));
+        const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+        const antes = datosOrdenadosPorNumero.filter(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) <= 0).pop();
+        const despues = datosOrdenadosPorNumero.find(d => d.numero.localeCompare(nuevoNumero, undefined, { numeric: true }) > 0);
 
         if (antes && fechaNueva < new Date(antes.fecha.split('/').reverse().join('-'))) {
             mensajeGuardadoDiv.innerHTML = `<p class='text-red-500 font-bold'>¡POSIBLE DOCUMENTO FALSO! LA PROGRESIÓN NUMÉRICA NO ES CORRECTA (Número posterior con fecha anterior)</p>`;
@@ -231,21 +227,22 @@
         }
 
         const nuevoDato = {
+            numero: nuevoNumero,
             fecha: fechaFormateada
         };
 
-        licenciasItaliaRef.child(nuevoNumero).set(nuevoDato)
+        licenciasNuevasRef.doc(nuevoNumero).set(nuevoDato)
             .then(() => {
-                mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firebase!';
+                mensajeGuardadoDiv.textContent = '¡Datos guardados con éxito en Firestore!';
                 mensajeGuardadoDiv.style.color = 'green';
                 
-                cargarDatosDesdeFirebase();
+                cargarDatosDesdeFirestore();
                 
                 limpiarCampos();
                 formularioNuevosDatos.classList.add('hidden');
             })
             .catch(error => {
-                mensajeGuardadoDiv.textContent = 'Error al guardar en Firebase: ' + error.message;
+                mensajeGuardadoDiv.textContent = 'Error al guardar en Firestore: ' + error.message;
                 mensajeGuardadoDiv.style.color = 'red';
             });
     }
@@ -259,7 +256,7 @@
           const fechaA = new Date(`${y1}-${m1}-${d1}`);
           const fechaB = new Date(`${y2}-${m2}-${d2}`);
           if (fechaA.getTime() === fechaB.getTime()) {
-              return alphanumericToNumber(b.numero) - alphanumericToNumber(a.numero);
+              return b.numero.localeCompare(a.numero, undefined, { numeric: true });
           }
           return fechaB - fechaA;
       });
@@ -299,19 +296,15 @@
     }
 
     function eliminarDato(key) {
-      licenciasItaliaRef.child(key).remove()
+      licenciasNuevasRef.doc(key).delete()
         .then(() => {
           console.log("Registro eliminado con éxito.");
-          cargarDatosDesdeFirebase();
+          cargarDatosDesdeFirestore();
         })
         .catch((error) => {
           console.error("Error al eliminar el registro:", error);
           alert("Error al eliminar el registro.");
         });
-    }
-
-    function alphanumericToNumber(str) {
-      return parseInt(str, 36);
     }
 
     function buscarFecha() {
@@ -333,19 +326,23 @@
         return;
       }
       
-      const numActual = alphanumericToNumber(numero);
+      const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => a.numero.localeCompare(b.numero, undefined, { numeric: true }));
+      const antes = datosOrdenadosPorNumero.filter(d => d.numero.localeCompare(numero, undefined, { numeric: true }) <= 0).pop();
+      const despues = datosOrdenadosPorNumero.find(d => d.numero.localeCompare(numero, undefined, { numeric: true }) > 0);
 
-      const datosOrdenadosPorNumero = [...datosCompletos].sort((a, b) => alphanumericToNumber(a.numero) - alphanumericToNumber(b.numero));
-      const antes = datosOrdenadosPorNumero.filter(d => alphanumericToNumber(d.numero) <= numActual).pop();
-      const despues = datosOrdenadosPorNumero.find(d => alphanumericToNumber(d.numero) > numActual);
-
-      if (!antes || !despues) {
-        output.innerHTML = "<p class='text-red-500 font-bold'>EL NÚMERO NO ESTÁ EN EL RANGO CONOCIDO PARA ESTIMAR LA FECHA.</p>";
+      if (!antes) {
+        output.innerHTML = "<p class='text-red-500 font-bold'>EL NÚMERO ES DEMASIADO ANTIGUO O NO EXISTE UN REGISTRO ANTERIOR</p>";
         return;
       }
 
-      const numAntes = alphanumericToNumber(antes.numero);
-      const numDespues = alphanumericToNumber(despues.numero);
+      if (!despues) {
+        output.innerHTML = `<p class='text-red-500 font-semibold'>El número ${numero} no está en el rango conocido.</p>`;
+        return;
+      }
+
+      const numAntes = parseInt(antes.numero.replace(/\D/g, ''), 36);
+      const numDespues = parseInt(despues.numero.replace(/\D/g, ''), 36);
+      const numActual = parseInt(numero.replace(/\D/g, ''), 36);
       
       const prop = (numActual - numAntes) / (numDespues - numAntes);
 

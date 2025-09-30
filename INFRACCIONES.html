@@ -22,13 +22,14 @@
       border-radius: 2px;
     }
     .keyword-highlight {
-      background-color: #bbf7d0;
-      padding: 0 2px;
-      border-radius: 2px;
+      background-color: transparent;
+      padding: 0;
+      border-radius: 0;
     }
     .regulation-code {
       font-weight: bold;
       color: #1e40af;
+      font-size: 1.25rem; /* Aumentado para mayor visibilidad */
     }
     .article-info {
       font-weight: bold;
@@ -48,8 +49,8 @@
       font-weight: 800;
     }
     .keywords-display {
-      color: #dc2626;
-      font-weight: 800;
+      color: #000; /* Fuente negra */
+      font-weight: normal; /* Sin negrita */
       font-size: 0.9rem;
       margin-bottom: 0.5rem;
     }
@@ -397,7 +398,7 @@
     // Elementos DOM
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
-    const clearButton = document.getElementById('clearButton'); // Nuevo elemento del DOM
+    const clearButton = document.getElementById('clearButton');
     const regulationFilter = document.getElementById('regulationFilter');
     const resultsContainer = document.getElementById('resultsContainer');
     const noResults = document.getElementById('noResults');
@@ -437,7 +438,7 @@
         return 'Reglamento General de Circulación';
       }
       
-      if ((lowerName.includes('real decreto') || lowerName.includes('rd')) && 
+      if (lowerName.includes('real decreto') || lowerName.includes('rd') && 
           (lowerName.includes('8/2004') || lowerName.includes('soa') || 
            lowerName.includes('seguro') || lowerName.includes('obligatorio'))) {
         return 'Real Decreto 8/2004 del SOA';
@@ -461,17 +462,40 @@
       return matches ? parseInt(matches[0]) : 0;
     }
 
-    // Función para ordenar infracciones por normativa y artículo
+    // Función para ordenar infracciones por artículo, apartado y opción
     function sortInfractions(infractionsArray) {
       return infractionsArray.sort((a, b) => {
-        // Primero ordenar por normativa
-        const regulationCompare = a.regulation.localeCompare(b.regulation);
-        if (regulationCompare !== 0) return regulationCompare;
-        
-        // Luego ordenar por número de artículo
+        // Primero, ordenar por el número del artículo
         const aNum = extractArticleNumber(a.article);
         const bNum = extractArticleNumber(b.article);
-        return aNum - bNum;
+        if (aNum !== bNum) {
+          return aNum - bNum;
+        }
+
+        // Si los artículos son iguales, ordenar por apartado
+        const aSection = a.section || '';
+        const bSection = b.section || '';
+        const sectionCompare = aSection.localeCompare(bSection);
+        if (sectionCompare !== 0) {
+          return sectionCompare;
+        }
+        
+        // Si los apartados son iguales, ordenar por la opción
+        const aOption = a.option || '';
+        const bOption = b.option || '';
+        
+        // Lógica de ordenación para la opción (números antes que letras)
+        const aOptionNum = parseInt(aOption.match(/\d+/)) || 0;
+        const bOptionNum = parseInt(bOption.match(/\d+/)) || 0;
+        
+        if (aOptionNum !== bOptionNum) {
+          return aOptionNum - bOptionNum;
+        }
+        
+        const aOptionLetter = aOption.match(/[a-zA-Z]/)?.[0] || '';
+        const bOptionLetter = bOption.match(/[a-zA-Z]/)?.[0] || '';
+        
+        return aOptionLetter.localeCompare(bOptionLetter);
       });
     }
 
@@ -529,7 +553,7 @@
             }
           }
           
-          // Ordenar las infracciones
+          // Ordenar las infracciones después de cargarlas
           infractions = sortInfractions(infractions);
           
           console.log('Infracciones cargadas y ordenadas:', infractions.length);
@@ -537,6 +561,7 @@
         } else {
           console.log('No hay infracciones en la base de datos');
           resultsContainer.innerHTML = '';
+          noResults.textContent = 'No se encontraron infracciones.';
           noResults.classList.remove('hidden');
         }
       }, (error) => {
@@ -546,10 +571,33 @@
         noResults.classList.remove('hidden');
       });
     }
+    
+    // Función para convertir a "Sentence case" (primera letra mayúscula y después de cada punto)
+    function toSentenceCase(text) {
+      if (!text) {
+        return '';
+      }
+      let result = text.toLowerCase();
+      
+      // Capitalizar la primera letra
+      result = result.charAt(0).toUpperCase() + result.slice(1);
+      
+      // Capitalizar la primera letra después de cada punto y espacio
+      result = result.replace(/\. (\w)/g, (match, letter) => `. ${letter.toUpperCase()}`);
+      
+      return result;
+    }
+
+    // Función para normalizar texto (eliminar acentos)
+    function normalizeText(text) {
+      if (!text) return '';
+      return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
 
     // Mostrar sugerencias de búsqueda
     function showSuggestions() {
       const searchTerm = searchInput.value.toLowerCase().trim();
+      const normalizedSearchTerm = normalizeText(searchTerm);
       
       // Limpiar sugerencias previas
       suggestionsBox.innerHTML = '';
@@ -595,7 +643,7 @@
       }
       
       // Lógica para reemplazar sugerencias para 105 y 106
-      if (searchTerm.includes('105') || searchTerm.includes('106')) {
+      if (normalizedSearchTerm.includes('105') || normalizedSearchTerm.includes('106')) {
         // COMENTARIO: Añade aquí tus palabras clave personalizadas para 105 y 106
         const customKeywords = 'Alquiler, Vehículos, Mercancías, Autorización, Transporte, Susceptible, Retirada, V8, V16';
         const suggestionItem = document.createElement('div');
@@ -616,7 +664,7 @@
       // Mostrar sugerencias agrupadas por normativa
       for (const [regulation, keywordsSet] of Object.entries(allKeywordsByRegulation)) {
         const matchingKeywords = Array.from(keywordsSet).filter(keyword => 
-          keyword.toLowerCase().includes(searchTerm)
+          normalizeText(keyword.toLowerCase()).includes(normalizedSearchTerm)
         ).sort();
         
         if (matchingKeywords.length > 0) {
@@ -648,12 +696,29 @@
       }
     }
 
-    // Función para resaltar texto en los resultados
+    // Función para resaltar texto en los resultados de manera insensible a acentos
     function highlightText(text, searchTerm) {
       if (!searchTerm || !text) return text;
       
-      const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+      const normalizedSearchTerm = normalizeText(searchTerm);
+      const escapedTerm = normalizedSearchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      let regexPattern = '';
+      for (const char of escapedTerm.toLowerCase()) {
+        switch (char) {
+          case 'a': regexPattern += '[aáàäâ]'; break;
+          case 'e': regexPattern += '[eéèëê]'; break;
+          case 'i': regexPattern += '[iíìïî]'; break;
+          case 'o': regexPattern += '[oóòöô]'; break;
+          case 'u': regexPattern += '[uúùüû]'; break;
+          case 'n': regexPattern += '[nñ]'; break;
+          case 'c': regexPattern += '[cç]'; break;
+          default: regexPattern += char;
+        }
+      }
+
+      const regex = new RegExp(`(${regexPattern})`, 'gi');
+      
       return text.replace(regex, '<span class="highlight">$1</span>');
     }
 
@@ -661,7 +726,7 @@
     function highlightKeywords(text, searchTerm) {
       if (!searchTerm || !text) return text;
       
-      const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedTerm = normalizeText(searchTerm).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(${escapedTerm})`, 'gi');
       return text.replace(regex, '<span class="keyword-highlight">$1</span>');
     }
@@ -688,6 +753,7 @@
     // Función para buscar infracciones
     function searchInfractions() {
       const searchTerm = searchInput.value.toLowerCase().trim();
+      const normalizedSearchTerm = normalizeText(searchTerm);
       const regulation = regulationFilter.value;
       
       let filteredInfractions = infractions;
@@ -714,7 +780,7 @@
           ];
           
           return searchFields.some(field => 
-            field && field.toLowerCase().includes(searchTerm)
+            field && normalizeText(field.toLowerCase()).includes(normalizedSearchTerm)
           );
         });
       }
@@ -751,8 +817,9 @@
           searchTerm
         );
         
-        // Resaltar el término de búsqueda en todos los campos relevantes
-        const highlightedDescription = highlightText(infraction.description, searchTerm);
+        // Convertir la descripción a "sentence case" antes de resaltarla
+        const sentenceCaseDescription = toSentenceCase(infraction.description);
+        const highlightedDescription = highlightText(sentenceCaseDescription, searchTerm);
         const highlightedRegulation = highlightText(infraction.regulation, searchTerm);
         const highlightedKeywords = highlightKeywords(infraction.keywords, searchTerm);
         

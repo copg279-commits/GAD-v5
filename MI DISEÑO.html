@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Título de tu Página - GAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        .gad-logo-header {
+            width: 160px; /* Tamaño del logo del index.html */
+            height: 160px; /* Tamaño del logo del index.html */
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .back-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .back-to-menu-button {
+            background-color: #f59e0b; /* Amarillo */
+        }
+        .back-to-menu-button:hover {
+            background-color: #d97706;
+        }
+        .back-button-history {
+            background-color: #4b5563; /* Gris oscuro */
+        }
+        .back-button-history:hover {
+            background-color: #374151;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-blue-600 w-full flex justify-center items-center py-2">
+        <div class="gad-logo-header">
+            <img src="logogad.png" alt="Logo GAD" class="w-full h-full object-cover block">
+        </div>
+    </header>
+
+    <main>
+        <h1>Contenido de tu página</h1>
+        <p>Este es el espacio donde debes pegar el código HTML específico de cada nueva función.</p>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="back-button back-to-menu-button">Volver a Menú Principal</a>
+            <button onclick="history.back()" class="back-button back-button-history">Atrás</button>
+        </div>
+    </main>
+
+    <footer class="mt-auto text-center py-6 bg-gray-200">
+        <div class="flex flex-col items-center">
+            <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
+            <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
+            <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
+            <p>&copy; GAD - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+</body>
+</html>
