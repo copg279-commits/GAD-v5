@@ -6,6 +6,14 @@
   <title>Consulta de Fabricante LC</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+        .flag-button-spain {
+        background: linear-gradient(to top, #c60b1e 0%, #c60b1e 33%, #ffc400 33%, #ffc400 66%, #c60b1e 66%, #c60b1e 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+  <style>
     .input-wrapper {
       display: flex;
       align-items: center;
@@ -26,9 +34,6 @@
       text-transform: uppercase;
       text-align: center;
     }
-    .table-responsive {
-      overflow-x: auto;
-    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col pb-16">
@@ -48,41 +53,35 @@
 </h1>
 
 <p class="text-center mt-2 px-4">
-    Introduce el número del código LC:
+    Selecciona un código LC para ver el fabricante:
 </p>
 
 <div class="w-11/12 max-w-md mx-auto mt-4">
   <img src="logocolombia.png" alt="Logo Colombia" class="w-full">
 </div>
 
-<div class="input-wrapper w-11/12 max-w-md mx-auto mt-4">
-  <span class="input-prefix">LC</span>
-  <input id="numero" type="text" class="input-number" placeholder="01" maxlength="2">
+<div class="w-11/12 max-w-md mx-auto mt-4">
+  <select id="fabricanteSelect" onchange="buscarFabricante(this.value)"
+          class="block mx-auto mt-4 p-2 text-base w-full border border-gray-300 rounded-lg">
+    <option value="">-- Seleccionar código LC --</option>
+  </select>
 </div>
-
-<button onclick="buscarFabricante()" class="block mx-auto mt-4 w-11/12 max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md">
-  Buscar
-</button>
-
-<button onclick="mostrarTodos()" class="block mx-auto mt-4 w-11/12 max-w-md bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-md">
-  Ver lista completa
-</button>
 
 <div id="resultado" class="w-11/12 max-w-md mx-auto mt-6 text-lg font-semibold text-gray-800 text-center"></div>
 
-    <div class="mt-8 flex justify-center">
+<div class="mt-8 flex justify-center">
     <button onclick="window.location.href='index.html'"
             class="w-11/12 max-w-md p-4 bg-yellow-400 text-black font-bold rounded-lg shadow-md transition hover:bg-yellow-200">
         MENÚ PRINCIPAL
     </button>
 </div>
 
- <footer class="mt-auto text-center py-6 bg-gray-200">
+<footer class="mt-auto text-center py-6 bg-gray-200">
     <hr class="border-t border-gray-400 w-11/12 max-w-md mx-auto mb-4">
     <p class="font-bold">GRUPO DE ANÁLISIS DOCUMENTAL</p>
     <p class="font-bold">POLICÍA LOCAL DE ALICANTE</p>
-    <p>&copy; GAD - Todos los derechos reservados</p>
-  </footer>
+    <p>GAD - Todos los derechos reservados</p>
+</footer>
 
 <script>
   const fabricantes = {
@@ -99,57 +98,28 @@
     "LC12": "MUVA S.A.S."
   };
 
-  function buscarFabricante() {
-    const num = document.getElementById("numero").value.trim().padStart(2, '0');
-    const codigo = `LC${num.toUpperCase()}`;
-    const resultado = document.getElementById("resultado");
-    if (fabricantes[codigo]) {
-      resultado.textContent = `Fabricante: ${fabricantes[codigo]}`;
-    } else {
-      resultado.textContent = "Código no encontrado. Verifica el número ingresado.";
-    }
+  const fabricanteSelect = document.getElementById('fabricanteSelect');
+  const resultado = document.getElementById("resultado");
+
+  function populateSelect() {
+      const sortedKeys = Object.keys(fabricantes).sort();
+      sortedKeys.forEach(key => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          fabricanteSelect.appendChild(option);
+      });
   }
 
-  function mostrarTodos() {
-    const resultado = document.getElementById("resultado");
-    let listaHTML = `
-      <div class="mt-4 p-4 bg-white rounded-md shadow-md table-responsive">
-        <table class="w-full text-sm text-left text-gray-500">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-            <tr>
-              <th scope="col" class="py-3 px-6">Código LC</th>
-              <th scope="col" class="py-3 px-6">Fabricante</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-
-    for (const codigo in fabricantes) {
-      if (fabricantes.hasOwnProperty(codigo)) {
-        listaHTML += `
-          <tr class="bg-white border-b">
-            <td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">${codigo}</td>
-            <td class="py-4 px-6">${fabricantes[codigo]}</td>
-          </tr>
-        `;
+  function buscarFabricante(codigo) {
+      if (codigo && fabricantes[codigo]) {
+          resultado.textContent = `Fabricante: ${fabricantes[codigo]}`;
+      } else {
+          resultado.textContent = "";
       }
-    }
-
-    listaHTML += `
-          </tbody>
-        </table>
-      </div>
-    `;
-
-    resultado.innerHTML = listaHTML;
   }
-  
-  // Permitir que Enter dispare la búsqueda
-  document.getElementById("numero").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      buscarFabricante();
-    }
-  });
+
+  document.addEventListener('DOMContentLoaded', populateSelect);
 </script>
 </body>
 </html>
