@@ -669,16 +669,23 @@
                     renderMenuButtons();
                 }
             });
-        } else if (buttonData.htmlCode) {
-            link.href = 'javascript:void(0);';
-            link.addEventListener('click', () => {
-                if (!isEditMode) {
-                    const blob = new Blob([buttonData.htmlCode], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                }
-            });
-        } else if (buttonData.href) {
+} else if (buttonData.htmlCode) {
+    link.href = 'javascript:void(0);';
+    link.addEventListener('click', () => {
+        if (!isEditMode) {
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                newWindow.document.open();
+                newWindow.document.write(buttonData.htmlCode);
+                newWindow.document.close();
+            } else {
+                alert("El navegador ha bloqueado la ventana emergente. Permite pop-ups para esta página.");
+            }
+        }
+    });
+}
+
+        else if (buttonData.href) {
             link.href = isEditMode ? 'javascript:void(0);' : buttonData.href;
             if (!isEditMode) link.target = "_blank";
         }
@@ -1399,7 +1406,7 @@
                     <div class="counter-item" style="height: auto; justify-content: space-between; padding: 5px; min-height: 80px; width: 100px;">
                         <div class="counter-label" style="font-weight: 700; color: #1f2937; font-size: 0.85rem; width: 100%;">${user.nombre}</div>
                         <div class="counter-value" style="font-size: 1.1rem; font-weight: 700;">Visitas: ${visits}</div>
-                        <div style="font-size:0.65rem; color:#4b5563; margin-top:5px; text-align: center; width: 100%;">Último acceso: ${lastAccessText}</div>
+<div class="counter-last-access">Último acceso: ${lastAccessText}</div>
                         <button 
                             onclick="openUserVisitHistory('${user.key}', '${user.nombre}')" 
                             style="padding: 2px 5px; font-size: 0.7rem; background-color: #667eea; color: white; border-radius: 3px; cursor: pointer; border: none; width: 100%; margin-top: 3px;">
@@ -1412,13 +1419,15 @@
             // Contador total de visitas
             const totalVisitsCount = Object.values(users).reduce((acc, user) => acc + (user.accesos || 0), 0);
 
-            const totalCounterHtml = `
-                <div class="counter-item" style="background-color: #3b82f6; color: white; height: 80px; justify-content: space-around;">
-                    <div class="counter-label" style="font-size: 0.85rem; font-weight: 700;">TOTAL VISITAS</div>
-                    <div class="counter-value" style="font-size: 1.2rem;">${totalVisitsCount}</div>
-                    <div style="font-size:0.65rem; color: #bfdbfe; margin-top:2px;">(De ${Object.keys(users).length} usuarios)</div>
-                </div>
-            `;
+const totalCounterHtml = `
+    <div class="counter-item counter-total" style="background-color: #60a5fa; color: white; min-height: 80px; width: 100px; justify-content: space-between; padding: 5px;">
+        <div class="counter-label">TOTAL VISITAS</div>
+        <div class="counter-value">${totalVisitsCount}</div>
+        <div class="counter-last-access">(De ${Object.keys(users).length} usuarios)</div>
+    </div>
+`;
+
+
             
             // Mostrar el total y todos los usuarios
             countersRow.innerHTML = totalCounterHtml + countersHtml.join('');
